@@ -14,15 +14,15 @@ export function EquipmentCard({ equipment, actions }: Props) {
   ];
 
   return (
-    <article className="flex w-72 flex-col gap-4 rounded-lg bg-secondary-50 p-5">
-      <div aria-hidden className="h-35.5 w-full rounded-lg bg-secondary-100" />
-      <div className="flex flex-col gap-8.25">
-        <div className="flex flex-col gap-5">
-          <h3 className="text-heading-sm text-black">{equipment.name}</h3>
-          <dl className="flex flex-col gap-2 text-body-md">
+    <article className="flex h-full flex-col gap-4 rounded-lg bg-secondary-50 p-4">
+      <div aria-hidden className="h-28 w-full rounded-lg bg-secondary-100" />
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <h3 className="text-title-md text-black">{equipment.name}</h3>
+          <dl className="flex flex-col gap-1.5 text-body-sm">
             {specs.map(([term, value]) => (
               <div key={term} className="flex">
-                <dt className="w-18 shrink-0 text-secondary-600">{term}</dt>
+                <dt className="w-16 shrink-0 text-secondary-600">{term}</dt>
                 <dd className="text-black">{value}</dd>
               </div>
             ))}

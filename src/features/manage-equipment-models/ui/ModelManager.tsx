@@ -50,7 +50,7 @@ export function ModelManager({ initialModels }: Props) {
   const remove = (id: string) => setModels((prev) => prev.filter((m) => m.id !== id));
 
   return (
-    <div className="flex flex-col gap-16">
+    <div className="flex flex-col gap-10">
       <PageHeading
         title="모델링 리스트"
         description="설비 모델과 3D 모델 파일을 관리하세요"
@@ -62,8 +62,8 @@ export function ModelManager({ initialModels }: Props) {
       />
 
       {form && (
-        <form onSubmit={save} className="flex flex-col gap-6 rounded-lg bg-secondary-50 p-8">
-          <h2 className="text-heading-md text-black">{editingId ? "모델 수정" : "새 모델"}</h2>
+        <form onSubmit={save} className="flex flex-col gap-6 rounded-lg bg-secondary-50 p-6">
+          <h2 className="text-title-lg text-black">{editingId ? "모델 수정" : "새 모델"}</h2>
           <div className="grid gap-6 md:grid-cols-3">
             <TextField
               label="모델명"
@@ -103,7 +103,7 @@ export function ModelManager({ initialModels }: Props) {
       <div className="overflow-x-auto rounded-lg bg-secondary-50">
         <table className="w-full min-w-3xl border-collapse text-left">
           <thead>
-            <tr className="text-title-md text-secondary-600">
+            <tr className="text-label-lg text-secondary-600">
               <th scope="col" className="px-6 py-5">
                 모델
               </th>
@@ -129,8 +129,8 @@ export function ModelManager({ initialModels }: Props) {
           </thead>
           <tbody className="bg-white">
             {models.map((model) => (
-              <tr key={model.id} className="border-t-2 border-secondary-100 text-body-lg">
-                <td className="px-6 py-5 text-title-lg text-black">{model.name}</td>
+              <tr key={model.id} className="border-t-2 border-secondary-100 text-body-md">
+                <td className="px-6 py-5 text-title-md text-black">{model.name}</td>
                 <td className="px-6 py-5 font-mono text-black">{model.code}</td>
                 <td className="px-6 py-5 font-mono text-secondary-700">{model.file || "—"}</td>
                 <td className="px-6 py-5 text-black">{model.parts}개</td>
@@ -160,7 +160,7 @@ export function ModelManager({ initialModels }: Props) {
             ))}
             {models.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-10 text-center text-body-lg text-secondary-600">
+                <td colSpan={7} className="px-6 py-10 text-center text-body-md text-secondary-600">
                   등록된 모델이 없어요.
                 </td>
               </tr>

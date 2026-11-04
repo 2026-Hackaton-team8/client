@@ -41,11 +41,11 @@ export function ConsultForm({ equipments, symptoms }: Props) {
     return (
       <section
         aria-live="polite"
-        className="flex flex-col items-start gap-6 rounded-lg bg-secondary-50 p-8"
+        className="flex flex-col items-start gap-6 rounded-lg bg-secondary-50 p-6"
       >
         <div className="flex flex-col gap-3.5">
-          <h2 className="text-heading-md text-black">상담이 접수됐어요</h2>
-          <p className="text-body-lg text-secondary-700">
+          <h2 className="text-title-lg text-black">상담이 접수됐어요</h2>
+          <p className="text-body-md text-secondary-700">
             요청번호 <span className="font-mono text-black">AS-1045</span> · {equipment.name} 상담이{" "}
             {equipment.maker} A/S 요청 기록으로 전달됐어요.
           </p>
@@ -63,7 +63,7 @@ export function ConsultForm({ equipments, symptoms }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-8 rounded-lg bg-secondary-50 p-8">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8 rounded-lg bg-secondary-50 p-6">
       <Select
         label="설비"
         value={equipmentId}
@@ -74,7 +74,7 @@ export function ConsultForm({ equipments, symptoms }: Props) {
         }))}
       />
       <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-title-md text-black">어떤 증상인가요?</legend>
+        <legend className="mb-2 text-label-lg text-black">어떤 증상인가요?</legend>
         <div className="flex flex-wrap gap-2">
           {symptoms.map((symptom) => (
             <Chip

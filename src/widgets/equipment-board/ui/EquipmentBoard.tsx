@@ -19,19 +19,19 @@ export function EquipmentBoard({ equipments, consultations }: Props) {
     : equipments;
 
   return (
-    <div className="flex flex-wrap items-start gap-x-27.75 gap-y-16">
-      <section className="flex w-232 max-w-full flex-col gap-16">
+    <div className="grid items-start gap-10 lg:grid-cols-3">
+      <section className="flex min-w-0 flex-col gap-8 lg:col-span-2">
         <PageHeading
           title="내 설비"
           description="고장이 나면 설비를 골라 상담하세요"
           action={
-            <Button variant="soft" size="lg" className="w-37">
+            <Button variant="soft" size="lg">
               장비 등록
             </Button>
           }
         />
         {visible.length > 0 ? (
-          <ul className="flex flex-wrap gap-7.75">
+          <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((equipment) => (
               <li key={equipment.id}>
                 <EquipmentCard
@@ -60,14 +60,14 @@ export function EquipmentBoard({ equipments, consultations }: Props) {
             ))}
           </ul>
         ) : (
-          <p className="text-heading-sm text-secondary-600">
+          <p className="text-title-md text-secondary-600">
             &lsquo;{keyword}&rsquo;에 맞는 설비가 없어요.
           </p>
         )}
       </section>
 
-      <aside className="flex w-163 max-w-full flex-col gap-16">
-        <div className="w-127 max-w-full">
+      <aside className="flex min-w-0 flex-col gap-8">
+        <div>
           <TextField
             type="search"
             label="장비명으로 검색하기"

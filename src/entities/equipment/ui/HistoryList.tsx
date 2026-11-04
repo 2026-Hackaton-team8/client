@@ -8,7 +8,7 @@ type Props = {
 
 export function HistoryList({ items, emptyText = "아직 기록이 없어요." }: Props) {
   if (items.length === 0) {
-    return <p className="py-5 text-body-lg text-secondary-600">{emptyText}</p>;
+    return <p className="py-5 text-body-md text-secondary-600">{emptyText}</p>;
   }
 
   return (
@@ -22,14 +22,14 @@ export function HistoryList({ items, emptyText = "아직 기록이 없어요." }
                 <Badge tone={item.kind === "fault" ? "strong" : "primary"}>
                   {item.kind === "fault" ? "고장" : "A/S"}
                 </Badge>
-                <p className="text-title-lg text-black">{item.title}</p>
+                <p className="text-title-md text-black">{item.title}</p>
               </div>
               {item.note && <p className="text-body-md text-secondary-800">{item.note}</p>}
               <p className="text-body-md text-secondary-600">
                 {[item.part, item.by].filter(Boolean).join(" · ")}
               </p>
             </div>
-            <time className="shrink-0 text-body-lg text-secondary-600">{item.date}</time>
+            <time className="shrink-0 text-body-md text-secondary-600">{item.date}</time>
           </div>
         </li>
       ))}

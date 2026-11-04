@@ -18,23 +18,23 @@ export function ConsultPage() {
       <AppHeader side="user" active="consult" />
       <PageMain>
         <PageHeading title="수리 상담" description="증상을 알려주시면 제작 업체에 바로 전달돼요" />
-        <div className="grid items-start gap-10 xl:grid-cols-5 xl:gap-16">
+        <div className="grid items-start gap-10 xl:grid-cols-5 xl:gap-10">
           <div className="xl:col-span-3">
-            <Suspense fallback={<div className="h-160 rounded-lg bg-secondary-50" />}>
+            <Suspense fallback={<div className="h-120 rounded-lg bg-secondary-50" />}>
               <ConsultForm equipments={equipments} symptoms={symptomOptions} />
             </Suspense>
           </div>
-          <div className="flex flex-col gap-16 xl:col-span-2">
-            <section className="flex flex-col gap-6 px-10">
-              <h2 className="text-heading-md text-black">상담 후 진행</h2>
+          <div className="flex flex-col gap-10 xl:col-span-2">
+            <section className="flex flex-col gap-4">
+              <h2 className="text-title-lg text-black">상담 후 진행</h2>
               <ol className="flex flex-col gap-5">
                 {steps.map(([title, body], index) => (
                   <li key={title} className="flex gap-4">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-title-md text-black">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-label-lg text-black">
                       {index + 1}
                     </span>
                     <div className="flex flex-col gap-1">
-                      <p className="text-title-lg text-black">{title}</p>
+                      <p className="text-title-md text-black">{title}</p>
                       <p className="text-body-md text-secondary-700">{body}</p>
                     </div>
                   </li>

@@ -41,7 +41,7 @@ export function RequestBoard({ initialRequests }: Props) {
   };
 
   return (
-    <div className="grid items-start gap-10 xl:grid-cols-5 xl:gap-16">
+    <div className="grid items-start gap-10 xl:grid-cols-5 xl:gap-10">
       <section className="flex min-w-0 flex-col gap-6 xl:col-span-3">
         <div role="group" aria-label="상태 필터" className="flex flex-wrap gap-2">
           {filters.map((key) => {
@@ -71,30 +71,30 @@ export function RequestBoard({ initialRequests }: Props) {
                 >
                   <span className="flex min-w-0 flex-col gap-2">
                     <span className="font-mono text-body-md text-secondary-600">{request.id}</span>
-                    <span className="text-title-lg text-black">{request.equipment}</span>
+                    <span className="text-title-md text-black">{request.equipment}</span>
                     <span className="text-body-md text-secondary-700">
                       {request.part} · {request.company}
                     </span>
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-3">
                     <RequestStatusBadge status={request.status} />
-                    <span className="text-body-lg text-secondary-600">{request.date}</span>
+                    <span className="text-body-md text-secondary-600">{request.date}</span>
                   </span>
                 </button>
               </li>
             );
           })}
           {rows.length === 0 && (
-            <li className="py-5 text-body-lg text-secondary-600">해당하는 요청이 없어요.</li>
+            <li className="py-5 text-body-md text-secondary-600">해당하는 요청이 없어요.</li>
           )}
         </ul>
       </section>
 
-      <aside className="flex min-w-0 flex-col gap-8 rounded-lg bg-secondary-50 p-8 xl:col-span-2">
+      <aside className="flex min-w-0 flex-col gap-8 rounded-lg bg-secondary-50 p-6 xl:col-span-2">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-2">
             <p className="font-mono text-body-md text-secondary-600">{selected.id}</p>
-            <h2 className="text-heading-md text-black">{selected.equipment}</h2>
+            <h2 className="text-title-lg text-black">{selected.equipment}</h2>
             <p className="text-body-md text-secondary-700">
               {selected.company} · {selected.date} 접수
             </p>
@@ -103,7 +103,7 @@ export function RequestBoard({ initialRequests }: Props) {
         </div>
 
         <section className="flex flex-col gap-3 rounded-lg bg-white p-5">
-          <h3 className="text-title-md text-secondary-700">상담 내용</h3>
+          <h3 className="text-label-lg text-secondary-700">상담 내용</h3>
           <div className="flex flex-wrap gap-2">
             {selected.symptoms.map((symptom) => (
               <span key={symptom} className="rounded-md bg-primary-100 px-2 py-1 text-label-md">
@@ -111,17 +111,17 @@ export function RequestBoard({ initialRequests }: Props) {
               </span>
             ))}
           </div>
-          <p className="text-body-lg text-black">{selected.description}</p>
+          <p className="text-body-md text-black">{selected.description}</p>
         </section>
 
         <section className="flex flex-col gap-2">
-          <h3 className="text-heading-sm text-black">해당 파트의 A/S 기록 · {selected.part}</h3>
+          <h3 className="text-title-md text-black">해당 파트의 A/S 기록 · {selected.part}</h3>
           <div className="rounded-lg bg-white">
             <HistoryList items={selected.history} emptyText="이 파트의 이전 기록이 없어요." />
           </div>
         </section>
 
-        <section className="flex flex-col gap-4 border-t-2 border-secondary-100 pt-8">
+        <section className="flex flex-col gap-4 border-t-2 border-secondary-100 pt-6">
           {selected.status === "received" && (
             <>
               <p className="text-body-md text-secondary-700">
@@ -148,8 +148,8 @@ export function RequestBoard({ initialRequests }: Props) {
           )}
           {selected.status === "done" && (
             <>
-              <h3 className="text-title-md text-secondary-700">A/S 보고</h3>
-              <p className="text-body-lg whitespace-pre-line text-black">{selected.report}</p>
+              <h3 className="text-label-lg text-secondary-700">A/S 보고</h3>
+              <p className="text-body-md whitespace-pre-line text-black">{selected.report}</p>
             </>
           )}
         </section>

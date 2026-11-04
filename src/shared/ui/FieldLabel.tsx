@@ -13,7 +13,7 @@ export function FieldLabel({ htmlFor, label, hideLabel, hint, hintId, children }
   return (
     <div className="flex w-full flex-col gap-2">
       {label && (
-        <label htmlFor={htmlFor} className={hideLabel ? "sr-only" : "text-title-md text-black"}>
+        <label htmlFor={htmlFor} className={hideLabel ? "sr-only" : "text-label-lg text-black"}>
           {label}
         </label>
       )}

@@ -12,7 +12,7 @@ export function Chip({ selected, className, type = "button", ...rest }: Props) {
     <button
       type={type}
       aria-pressed={selected}
-      className={`cursor-pointer rounded-lg border-2 px-4 py-2 text-title-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tone} ${className ?? ""}`}
+      className={`cursor-pointer rounded-lg border-2 px-3 py-1.5 text-label-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tone} ${className ?? ""}`}
       {...rest}
     />
   );

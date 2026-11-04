@@ -6,7 +6,7 @@ type Props = {
 
 export function PageMain({ children }: Props) {
   return (
-    <main className="mx-auto flex w-full max-w-439 flex-1 flex-col gap-16 px-8 pt-28 pb-24">
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-6 pt-14 pb-20 md:px-10">
       {children}
     </main>
   );

@@ -18,7 +18,7 @@ export function SolutionChecklist({ solution, footer }: Props) {
   return (
     <section className="flex flex-col gap-5 rounded-lg bg-secondary-50 p-5">
       <div className="flex flex-col gap-2">
-        <h2 className="text-heading-sm text-black">간단하게 시도할 수 있는 솔루션</h2>
+        <h2 className="text-title-md text-black">간단하게 시도할 수 있는 솔루션</h2>
         <p className="text-body-md text-secondary-600">
           {solution.title} · 제작사 승인 {solution.approvedAt}
         </p>
@@ -34,7 +34,7 @@ export function SolutionChecklist({ solution, footer }: Props) {
                 className="mt-0.5 size-5 shrink-0 cursor-pointer accent-primary-500"
               />
               <span
-                className={`text-body-lg ${checked[index] ? "text-secondary-600 line-through" : "text-black"}`}
+                className={`text-body-md ${checked[index] ? "text-secondary-600 line-through" : "text-black"}`}
               >
                 {index + 1}. {step}
               </span>

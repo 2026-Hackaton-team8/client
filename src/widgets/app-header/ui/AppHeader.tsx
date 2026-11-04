@@ -17,13 +17,13 @@ export function AppHeader({ side, active }: Props) {
 
   return (
     <header className="bg-secondary-50">
-      <div className="flex h-18.5 items-stretch gap-12.75 overflow-x-auto px-12.5 pt-7.5">
+      <div className="mx-auto flex h-14 max-w-7xl items-stretch gap-10 overflow-x-auto px-6 pt-4 md:px-10">
         <Link
           href={tabs[0].href}
           aria-label="짚어 홈"
-          className="h-7.25 w-27 shrink-0 bg-primary-100"
+          className="h-6 w-24 shrink-0 bg-primary-100"
         />
-        <nav aria-label="주 메뉴" className="flex gap-12.75">
+        <nav aria-label="주 메뉴" className="flex gap-8">
           {tabs.map((tab) => {
             const isActive = tab.key === active;
             return (
@@ -31,7 +31,7 @@ export function AppHeader({ side, active }: Props) {
                 key={tab.key}
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex flex-col items-center justify-between px-1.5 text-heading-sm whitespace-nowrap ${
+                className={`flex flex-col items-center justify-between px-1.5 text-title-md whitespace-nowrap ${
                   isActive ? "text-black" : "text-secondary-500 hover:text-secondary-800"
                 }`}
               >
