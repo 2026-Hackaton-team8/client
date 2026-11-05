@@ -9,7 +9,7 @@ type Props = {
 // Only what the report actually sends to the maker.
 const attachments = [
   "AI 상담 대화와 요약",
-  "증상 · 설비 상태",
+  "증상 · 설비 상태 · 긴급도",
   "첨부한 사진 · 영상",
   "담당자 · 회사 연락처",
 ];
