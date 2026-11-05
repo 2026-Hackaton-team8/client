@@ -103,6 +103,14 @@ export function UnityViewer({ label, equipmentCode, partCode, className, childre
         tabIndex={0}
         className={`size-full ${isLoaded ? "" : "invisible"}`}
       />
+      {/* The build's bottom-center equipment label uses a font without Korean glyphs and shows as
+          boxes. Cover it until the Unity build ships a Korean font. */}
+      {isLoaded && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-4 left-1/2 h-1/6 w-1/5 -translate-x-1/2 rounded-full bg-secondary-300 blur-md"
+        />
+      )}
       {isLoaded && children}
       {isLoaded && (
         <button
