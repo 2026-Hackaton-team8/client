@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { equipmentModels } from "@/entities/equipment-model";
-import { Button, ButtonLink, Panel, Placeholder, TextField } from "@/shared/ui";
+import { Button, ButtonLink, Panel, TextField, UnityViewer } from "@/shared/ui";
 
 export function RegisterEquipmentForm() {
   const router = useRouter();
@@ -83,7 +83,11 @@ export function RegisterEquipmentForm() {
         <Panel title="선택한 모델" className="gap-4">
           {selected ? (
             <>
-              <Placeholder label={`${selected.code} 3D 미리보기`} className="h-55" />
+              <UnityViewer
+                label={`${selected.code} 3D 미리보기`}
+                modelIndex={selected.unityIndex}
+                className="h-80"
+              />
               <p className="text-center text-label-md font-normal text-secondary-600">
                 3D 미리보기 · 드래그로 회전
               </p>

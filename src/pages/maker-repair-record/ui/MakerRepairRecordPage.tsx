@@ -1,3 +1,4 @@
+import { findEquipment } from "@/entities/equipment";
 import { findModel } from "@/entities/equipment-model";
 import type { ServiceCall } from "@/entities/service-call";
 import { RepairRecordForm } from "@/features/record-repair";
@@ -9,7 +10,8 @@ type Props = {
 };
 
 export function MakerRepairRecordPage({ call }: Props) {
-  const parts = findModel(call.model)?.parts ?? [];
+  const model = findModel(call.model);
+  const parts = model?.parts ?? [];
   const defaultPart =
     call.suspectParts.find((part) => part.state === "next")?.code ?? parts[0]?.code ?? "";
 
@@ -27,6 +29,7 @@ export function MakerRepairRecordPage({ call }: Props) {
           model={call.model}
           parts={parts}
           defaultPart={defaultPart}
+          unityIndex={findEquipment(call.equipmentId)?.unityIndex}
         />
       </PageMain>
     </>

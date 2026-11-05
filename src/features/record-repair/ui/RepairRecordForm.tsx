@@ -8,9 +8,9 @@ import {
   ButtonLink,
   OptionGroup,
   Panel,
-  Placeholder,
   Select,
   TextArea,
+  UnityViewer,
 } from "@/shared/ui";
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
   model: string;
   parts: ModelPart[];
   defaultPart: string;
+  unityIndex?: number;
 };
 
 const causes = ["이물질 걸림", "마모", "체결 불량", "전기적 결함", "기타"].map((label) => ({
@@ -30,7 +31,7 @@ const levels = [
   { value: "engineer", label: "엔지니어 작업 필요" },
 ];
 
-export function RepairRecordForm({ callId, model, parts, defaultPart }: Props) {
+export function RepairRecordForm({ callId, model, parts, defaultPart, unityIndex }: Props) {
   const [partCode, setPartCode] = useState(defaultPart);
   const [level, setLevel] = useState("engineer");
   const [saved, setSaved] = useState(false);
@@ -53,7 +54,7 @@ export function RepairRecordForm({ callId, model, parts, defaultPart }: Props) {
         }
         className="shrink-0 gap-4 lg:w-110"
       >
-        <Placeholder label={`${model} 3D 모델`} className="h-65" />
+        <UnityViewer label={`${model} 3D 모델`} modelIndex={unityIndex} className="h-90" />
         <ul aria-label="부품 목록" className="flex flex-col gap-1">
           {parts.map((item) => {
             const selected = item.code === partCode;

@@ -13,6 +13,7 @@ const maker = "[설비 제공 업체명]";
 export const equipmentModels: EquipmentModel[] = [
   {
     code: "WM-20",
+    unityIndex: 0,
     name: "산업용 세탁기 20kg",
     category: "산업용 세탁기",
     maker,
@@ -26,6 +27,7 @@ export const equipmentModels: EquipmentModel[] = [
   },
   {
     code: "WM-35",
+    unityIndex: 1,
     name: "산업용 세탁기 35kg",
     category: "산업용 세탁기",
     maker,
@@ -39,6 +41,7 @@ export const equipmentModels: EquipmentModel[] = [
   },
   {
     code: "WM-20S",
+    unityIndex: 2,
     name: "산업용 세탁기 20kg 스팀형",
     category: "산업용 세탁기",
     maker,
@@ -52,6 +55,7 @@ export const equipmentModels: EquipmentModel[] = [
   },
   {
     code: "DR-50",
+    unityIndex: 3,
     name: "대형 건조기 50kg",
     category: "산업용 건조기",
     maker,
@@ -65,6 +69,7 @@ export const equipmentModels: EquipmentModel[] = [
   },
   {
     code: "IR-12",
+    unityIndex: 4,
     name: "롤러 다림질기",
     category: "다림질기",
     maker,
@@ -77,6 +82,10 @@ export const equipmentModels: EquipmentModel[] = [
     parts: [],
   },
 ];
+
+export function unityIndexFor(code: string) {
+  return findModel(code)?.unityIndex;
+}
 
 export function findModel(code: string) {
   return equipmentModels.find((model) => model.code === code);

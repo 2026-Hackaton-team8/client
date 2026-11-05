@@ -14,5 +14,7 @@ export type EquipmentModel = {
   pendingDrafts: number;
   lastRepair: string;
   partCount: number;
+  // Index passed to Unity SelectModelByIndex (build ships 0–6).
+  unityIndex: number;
   parts: ModelPart[];
 };
