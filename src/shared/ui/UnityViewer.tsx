@@ -4,6 +4,29 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { unityBridge, unityBuild } from "@/shared/config";
 
+// The Unity build listens for keys on the whole window and calls preventDefault, so text fields
+// elsewhere on the page stop taking input once a viewer is up. Unity registers its listeners when
+// it starts; this capture listener is added first, at import, so it runs before Unity's and keeps
+// keys typed into a form field away from Unity. The browser still types them as usual.
+function isEditable(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+  );
+}
+
+if (typeof window !== "undefined") {
+  for (const type of ["keydown", "keypress", "keyup"]) {
+    window.addEventListener(
+      type,
+      (event) => {
+        if (isEditable(event.target)) event.stopImmediatePropagation();
+      },
+      true,
+    );
+  }
+}
+
 type Props = {
   label: string;
   equipmentCode?: string;
@@ -51,6 +74,19 @@ export function UnityViewer({ label, equipmentCode, partCode, className, childre
     if (isExpanded) return setIsExpanded(false);
     if (document.fullscreenElement) return void document.exitFullscreen();
     containerRef.current?.requestFullscreen().catch(() => setIsExpanded(true));
+  }
+
+  // No Unity equipment for this model: say so instead of an empty 3D scene.
+  if (!equipmentCode) {
+    return (
+      <div
+        role="img"
+        aria-label={label}
+        className={`flex items-center justify-center rounded-lg bg-secondary-100 p-6 text-center ${className ?? ""}`}
+      >
+        <p className="text-body-md text-secondary-700">이 모델은 3D 미리보기가 없어요.</p>
+      </div>
+    );
   }
 
   return (

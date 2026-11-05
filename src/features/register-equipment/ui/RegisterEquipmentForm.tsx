@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { equipmentApi, errorMessage, modelApi, useApi } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
 import { Button, ButtonLink, LoadState, Panel, TextField, UnityViewer } from "@/shared/ui";
 
 export function RegisterEquipmentForm() {
@@ -10,6 +11,8 @@ export function RegisterEquipmentForm() {
   const [query, setQuery] = useState("");
   const [keyword, setKeyword] = useState("");
   const [selectedId, setSelectedId] = useState<number>();
+  // The result list shows while typing and closes once a model is picked.
+  const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -59,11 +62,16 @@ export function RegisterEquipmentForm() {
               label="모델명"
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSelectedId(undefined);
+                setOpen(true);
+              }}
+              onFocus={() => setOpen(!selectedId)}
               placeholder="모델명이나 코드로 검색"
               aria-describedby="model-search-hint"
             />
-            {results.error ? (
+            {!open ? null : results.error ? (
               <LoadState error={results.error} className="py-3" />
             ) : (
               !!results.data?.length && (
@@ -78,7 +86,11 @@ export function RegisterEquipmentForm() {
                         <button
                           type="button"
                           aria-pressed={isSelected}
-                          onClick={() => setSelectedId(result.id)}
+                          onClick={() => {
+                            setSelectedId(result.id);
+                            setQuery(`${result.code} · ${result.name}`);
+                            setOpen(false);
+                          }}
                           className={`flex w-full cursor-pointer gap-2 px-4 py-2.5 text-left text-body-md ${
                             isSelected ? "bg-secondary-50" : "bg-white hover:bg-secondary-50"
                           }`}
@@ -94,7 +106,7 @@ export function RegisterEquipmentForm() {
                 </ul>
               )
             )}
-            {keyword && !results.loading && results.data?.length === 0 && (
+            {open && keyword && !results.loading && results.data?.length === 0 && (
               <p className="text-body-sm text-secondary-600">검색한 모델이 없어요.</p>
             )}
             <p id="model-search-hint" className="text-label-md font-normal text-secondary-600">
@@ -148,7 +160,7 @@ export function RegisterEquipmentForm() {
             <>
               <UnityViewer
                 label={`${model.code} 3D 미리보기`}
-                equipmentCode={model.modelFileKey}
+                equipmentCode={unityCodeFor(model)}
                 className="h-80"
               />
               <p className="text-center text-label-md font-normal text-secondary-600">

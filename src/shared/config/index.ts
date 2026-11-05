@@ -1,2 +1,8 @@
 export { unityBridge, unityBuild } from "./unity";
-export { unityCatalog, unityPartsFor, type UnityEquipment, type UnityPart } from "./unityCatalog";
+export {
+  unityCatalog,
+  unityCodeFor,
+  unityPartsFor,
+  type UnityEquipment,
+  type UnityPart,
+} from "./unityCatalog";

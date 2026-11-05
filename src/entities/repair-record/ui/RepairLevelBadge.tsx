@@ -7,8 +7,8 @@ type Props = {
 
 export function RepairLevelBadge({ level }: Props) {
   return level === "user" ? (
-    <Badge tone="primary">직접 가능</Badge>
+    <Badge tone="primary">사용자 조치</Badge>
   ) : (
-    <Badge tone="neutral">엔지니어</Badge>
+    <Badge tone="strong">기사 출동</Badge>
   );
 }
