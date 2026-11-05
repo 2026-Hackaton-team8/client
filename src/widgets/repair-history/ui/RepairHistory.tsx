@@ -2,24 +2,41 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { findModel } from "@/entities/equipment-model";
-import { RepairLevelBadge, repairRecords } from "@/entities/repair-record";
-import { findServiceCall, serviceCalls } from "@/entities/service-call";
-import { ButtonLink, PageHeading, Panel, TextField } from "@/shared/ui";
+import { RepairLevelBadge, repairLevelOf } from "@/entities/repair-record";
+import { isVisitDue } from "@/entities/service-call";
+import { makerApi, useApi } from "@/shared/api";
+import { formatDateTime, toDotDate } from "@/shared/lib";
+import { ButtonLink, LoadState, PageHeading, Panel, TextField } from "@/shared/ui";
 
 const columns = ["접수 번호", "수리 일자", "설비 모델", "부품", "원인 → 조치", "조치 구분"];
 
+// There's no maker-wide history endpoint, so gather every model's history.
+async function loadRecords() {
+  const models = await makerApi.models();
+  const lists = await Promise.all(models.map((model) => makerApi.modelHistories(model.id)));
+  return lists.flat().sort((a, b) => b.repairedAt.localeCompare(a.repairedAt));
+}
+
+// Assigned calls whose visit time has passed are waiting for their repair record.
+async function loadPending() {
+  const inbox = await makerApi.inbox({ status: "ASSIGNED", size: 100 });
+  const calls = await Promise.all(inbox.content.map((call) => makerApi.request(call.id)));
+  return calls.filter(isVisitDue);
+}
+
 export function RepairHistory() {
   const [query, setQuery] = useState("");
+  const records = useApi(loadRecords, "maker-records");
+  const { data: pending = [] } = useApi(loadPending, "pending-records");
   const keyword = query.trim().toLowerCase();
+  const all = records.data ?? [];
   const rows = keyword
-    ? repairRecords.filter((record) =>
-        [record.id, record.model, record.partCode, record.partName].some((value) =>
-          value.toLowerCase().includes(keyword),
+    ? all.filter((record) =>
+        [record.requestNo, record.equipment.modelCode, record.part.code, record.part.name].some(
+          (value) => value.toLowerCase().includes(keyword),
         ),
       )
-    : repairRecords;
-  const pending = serviceCalls.filter((call) => call.status === "visited");
+    : all;
 
   return (
     <>
@@ -51,13 +68,13 @@ export function RepairHistory() {
                 key={call.id}
                 className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg bg-white px-4 py-3"
               >
-                <span className="text-label-lg text-black">{call.id}</span>
+                <span className="text-label-lg text-black">{call.requestNo}</span>
                 <span className="min-w-0 flex-1 text-body-md text-black">
-                  {call.company} · {call.equipmentName} · {call.model}
+                  {call.company.name} · {call.equipment.name} · {call.equipment.modelCode}
                 </span>
-                {call.visit && (
+                {call.visitAt && (
                   <span className="text-body-sm text-secondary-600">
-                    {call.visit.date} 방문 · {call.visit.engineer}
+                    {formatDateTime(call.visitAt)} 방문 · {call.engineer?.name}
                   </span>
                 )}
                 <ButtonLink href={`/maker/records/new?call=${call.id}`} size="sm">
@@ -86,48 +103,52 @@ export function RepairHistory() {
           <tbody>
             {rows.map((record) => (
               <tr key={record.id} className="border-b border-secondary-100 last:border-b-0">
-                <td className="px-6 py-4 text-label-lg text-black">{record.id}</td>
+                <td className="px-6 py-4 text-label-lg text-black">{record.requestNo}</td>
                 <td className="px-6 py-4 text-body-sm whitespace-nowrap text-secondary-600">
-                  {record.date}
+                  {toDotDate(record.repairedAt)}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3.5">
                     <span aria-hidden className="size-12 shrink-0 rounded-lg bg-secondary-100" />
                     <span className="flex flex-col">
-                      <span className="text-title-md text-black">{record.model}</span>
+                      <span className="text-title-md text-black">{record.equipment.modelCode}</span>
                       <span className="text-body-sm text-secondary-600">
-                        {findModel(record.model)?.name}
+                        {record.equipment.modelName}
                       </span>
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <p className="text-body-md text-black">{record.partName}</p>
-                  <p className="text-body-sm text-secondary-600">{record.partCode}</p>
+                  <p className="text-body-md text-black">{record.part.name}</p>
+                  <p className="text-body-sm text-secondary-600">{record.part.code}</p>
                 </td>
                 <td className="px-6 py-4 text-body-md text-black">
-                  {record.cause} → {record.fix}
+                  {record.cause} → {record.solution}
                 </td>
                 <td className="px-6 py-4">
-                  <RepairLevelBadge level={record.level} />
+                  <RepairLevelBadge level={repairLevelOf(record.difficulty)} />
                 </td>
                 <td className="px-6 py-4">
-                  {findServiceCall(record.id) && (
-                    <Link
-                      href={`/maker/calls/${record.id}`}
-                      aria-label={`${record.id} 호출 열기`}
-                      className="text-label-lg whitespace-nowrap text-primary-500 hover:text-primary-600"
-                    >
-                      열기 →
-                    </Link>
-                  )}
+                  <Link
+                    href={`/maker/calls/${record.requestId}`}
+                    aria-label={`${record.requestNo} 호출 열기`}
+                    className="text-label-lg whitespace-nowrap text-primary-500 hover:text-primary-600"
+                  >
+                    열기 →
+                  </Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && (
-          <p className="py-12 text-center text-body-md text-secondary-600">검색 결과가 없어요.</p>
+        {records.loading || records.error ? (
+          <LoadState error={records.error} />
+        ) : (
+          rows.length === 0 && (
+            <p className="py-12 text-center text-body-md text-secondary-600">
+              {keyword ? "검색 결과가 없어요." : "아직 수리 이력이 없어요."}
+            </p>
+          )
         )}
       </div>
     </>

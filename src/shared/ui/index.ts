@@ -3,6 +3,7 @@ export { Button } from "./Button";
 export { ButtonLink } from "./ButtonLink";
 export { buttonStyles, type ButtonSize, type ButtonVariant } from "./buttonStyles";
 export { Chip } from "./Chip";
+export { LoadState } from "./LoadState";
 export { Logo } from "./Logo";
 export { OptionGroup } from "./OptionGroup";
 export { PageHeading } from "./PageHeading";

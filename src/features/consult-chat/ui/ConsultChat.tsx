@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import type { ChatMessage, Consultation } from "@/entities/consultation";
 import { Badge, Button, ButtonLink, TextField } from "@/shared/ui";
@@ -12,6 +13,9 @@ export function ConsultChat({ consultation }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(consultation.messages);
   const [draft, setDraft] = useState("");
   const [resolved, setResolved] = useState(consultation.status === "resolved");
+  // The equipment picked on the board rides along so the report files against it.
+  const equipmentId = useSearchParams()?.get("equipment");
+  const reportHref = `/consult/${consultation.id}/report${equipmentId ? `?equipment=${equipmentId}` : ""}`;
 
   function handleSend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,11 +88,7 @@ export function ConsultChat({ consultation }: Props) {
               <Button className="flex-1" onClick={() => setResolved(true)}>
                 해결됐어요
               </Button>
-              <ButtonLink
-                href={`/consult/${consultation.id}/report`}
-                variant="ghost"
-                className="flex-1"
-              >
+              <ButtonLink href={reportHref} variant="ghost" className="flex-1">
                 해결 안 됨 · 담당자 호출
               </ButtonLink>
             </div>

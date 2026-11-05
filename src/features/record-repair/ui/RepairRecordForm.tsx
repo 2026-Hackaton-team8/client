@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { ModelPart } from "@/entities/equipment-model";
+import { errorMessage, makerApi, type Difficulty, type PartResponse } from "@/shared/api";
 import {
   Badge,
   Button,
@@ -14,10 +14,9 @@ import {
 } from "@/shared/ui";
 
 type Props = {
-  callId: string;
+  requestId: number;
   model: string;
-  parts: ModelPart[];
-  defaultPart: string;
+  parts: PartResponse[];
   equipmentCode?: string;
 };
 
@@ -26,20 +25,39 @@ const causes = ["이물질 걸림", "마모", "체결 불량", "전기적 결함
   label,
 }));
 
-const levels = [
-  { value: "user", label: "이용 기업이 직접 시도 가능" },
-  { value: "engineer", label: "엔지니어 작업 필요" },
+const levels: { value: Difficulty; label: string }[] = [
+  { value: "SELF", label: "이용 기업이 직접 시도 가능" },
+  { value: "ENGINEER", label: "엔지니어 작업 필요" },
 ];
 
-export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentCode }: Props) {
-  const [partCode, setPartCode] = useState(defaultPart);
-  const [level, setLevel] = useState("engineer");
+export function RepairRecordForm({ requestId, model, parts, equipmentCode }: Props) {
+  const [partId, setPartId] = useState(parts[0]?.id);
+  const [level, setLevel] = useState<Difficulty>("ENGINEER");
   const [saved, setSaved] = useState(false);
-  const part = parts.find((item) => item.code === partCode);
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+  const part = parts.find((item) => item.id === partId);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSaved(true);
+    if (!part) return;
+    const data = new FormData(event.currentTarget);
+    const detail = String(data.get("causeDetail") ?? "").trim();
+    setPending(true);
+    setError("");
+    try {
+      await makerApi.recordRepair(requestId, {
+        partId: part.id,
+        cause: detail ? `${data.get("cause")} · ${detail}` : String(data.get("cause")),
+        solution: String(data.get("solution") ?? "").trim(),
+        difficulty: level,
+      });
+      setSaved(true);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -57,18 +75,24 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentC
         <UnityViewer
           label={`${model} 3D 모델`}
           equipmentCode={equipmentCode}
-          partCode={partCode}
+          // Unity highlights by mesh name ("ROBOT-001:BASE"); fall back to the part code.
+          partCode={part?.meshName ?? part?.code}
           className="h-90"
         />
         <ul aria-label="부품 목록" className="flex flex-col gap-1">
+          {parts.length === 0 && (
+            <li className="px-3 py-2.5 text-body-md text-secondary-600">
+              이 모델에 등록된 부품이 없어요.
+            </li>
+          )}
           {parts.map((item) => {
-            const selected = item.code === partCode;
+            const selected = item.id === partId;
             return (
-              <li key={item.code}>
+              <li key={item.id}>
                 <button
                   type="button"
                   aria-pressed={selected}
-                  onClick={() => setPartCode(item.code)}
+                  onClick={() => setPartId(item.id)}
                   className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left ${
                     selected ? "bg-primary-50" : "hover:bg-secondary-50"
                   }`}
@@ -76,7 +100,7 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentC
                   <span
                     className={`w-28 shrink-0 truncate text-label-md ${selected ? "text-primary-500" : "text-secondary-600"}`}
                   >
-                    {item.code.split(":").pop()}
+                    {item.code}
                   </span>
                   <span className={`text-body-md text-black ${selected ? "font-semibold" : ""}`}>
                     {item.name}
@@ -98,24 +122,29 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentC
             </p>
           </div>
           <div className="flex flex-col gap-2">
-            <Select label="고장 원인" options={causes} />
+            <Select label="고장 원인" name="cause" options={causes} />
             <TextArea
               label="고장 원인 자세히"
+              name="causeDetail"
               hideLabel
               rows={2}
-              defaultValue="임펠러에 섬유 뭉치가 감겨 회전은 되지만 배수가 안 됨"
+              maxLength={1900}
+              placeholder="예: 임펠러에 섬유 뭉치가 감겨 회전은 되지만 배수가 안 됨"
             />
           </div>
           <TextArea
             label="해결 방법"
+            name="solution"
             rows={4}
-            defaultValue="펌프 커버 분리 후 임펠러 이물질 제거, 재조립 후 배수 테스트 정상"
+            maxLength={4000}
+            required
+            placeholder="예: 펌프 커버 분리 후 임펠러 이물질 제거, 재조립 후 배수 테스트 정상"
           />
           <OptionGroup
             legend="조치 난이도"
             options={levels}
             value={level}
-            onChange={setLevel}
+            onChange={(value) => setLevel(value as Difficulty)}
             radio
           />
           <p className="px-4 text-body-sm text-secondary-700">
@@ -131,11 +160,18 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentC
               </ButtonLink>
             </div>
           ) : (
-            <div className="flex justify-end gap-2">
-              <ButtonLink href={`/maker/calls/${callId}`} variant="ghost">
+            <div className="flex items-center justify-end gap-2">
+              {error && (
+                <p role="alert" className="mr-auto text-body-sm text-primary-600">
+                  {error}
+                </p>
+              )}
+              <ButtonLink href={`/maker/calls/${requestId}`} variant="ghost">
                 취소
               </ButtonLink>
-              <Button type="submit">저장하고 수리 완료</Button>
+              <Button type="submit" disabled={!part || pending}>
+                {pending ? "저장하는 중…" : "저장하고 수리 완료"}
+              </Button>
             </div>
           )}
         </Panel>

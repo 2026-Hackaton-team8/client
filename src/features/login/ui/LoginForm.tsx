@@ -3,28 +3,30 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { authApi, errorMessage, homeForRole, saveSession } from "@/shared/api";
 import { Button, TextField } from "@/shared/ui";
-
-type Side = "user" | "maker";
-
-const sides: { value: Side; label: string }[] = [
-  { value: "user", label: "사용 업체" },
-  { value: "maker", label: "제작 업체" },
-];
-
-// No auth API yet, so submitting just lands on the chosen side's home.
-const homeBySide: Record<Side, string> = {
-  user: "/",
-  maker: "/maker/calls",
-};
 
 export function LoginForm() {
   const router = useRouter();
-  const [side, setSide] = useState<Side>("user");
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    router.push(homeBySide[side]);
+    const data = new FormData(event.currentTarget);
+    setPending(true);
+    setError("");
+    try {
+      const session = await authApi.login({
+        loginId: String(data.get("loginId")),
+        pw: String(data.get("password")),
+      });
+      saveSession(session, data.get("remember") === "on");
+      router.push(homeForRole(session.role));
+    } catch (caught) {
+      setError(errorMessage(caught));
+      setPending(false);
+    }
   }
 
   return (
@@ -33,37 +35,12 @@ export function LoginForm() {
         <h1 className="text-heading-lg text-black">로그인</h1>
         <p className="text-body-lg text-secondary-600">짚어 계정으로 로그인해 주세요.</p>
       </div>
-      <fieldset className="flex gap-1 rounded-[10px] bg-secondary-50 p-1">
-        <legend className="sr-only">업체 유형</legend>
-        {sides.map((option) => {
-          const checked = option.value === side;
-          return (
-            <label
-              key={option.value}
-              className={`flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg text-label-lg transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-500 ${
-                checked ? "bg-white text-black shadow-sm" : "text-secondary-600 hover:text-black"
-              }`}
-            >
-              <input
-                type="radio"
-                name="side"
-                value={option.value}
-                checked={checked}
-                onChange={() => setSide(option.value)}
-                className="sr-only"
-              />
-              {option.label}
-            </label>
-          );
-        })}
-      </fieldset>
       <div className="flex flex-col gap-4">
         <TextField
-          label="이메일"
-          type="email"
-          name="email"
-          autoComplete="email"
-          placeholder="name@company.com"
+          label="아이디"
+          name="loginId"
+          autoComplete="username"
+          placeholder="아이디를 입력해 주세요"
           required
         />
         <TextField
@@ -84,8 +61,13 @@ export function LoginForm() {
           비밀번호 찾기
         </Link>
       </div>
-      <Button type="submit" variant="strong" block>
-        로그인
+      {error && (
+        <p role="alert" className="text-body-sm text-primary-600">
+          {error}
+        </p>
+      )}
+      <Button type="submit" variant="strong" block disabled={pending}>
+        {pending ? "로그인 중…" : "로그인"}
       </Button>
       <div className="flex items-center gap-3 text-body-sm text-secondary-600">
         <span aria-hidden className="h-px flex-1 bg-secondary-100" />

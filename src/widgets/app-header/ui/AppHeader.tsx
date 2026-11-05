@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge, Logo } from "@/shared/ui";
-import { headerUsers, makerTabs, userTabs } from "../config/tabs";
+import { makerTabs, userTabs } from "../config/tabs";
+import { HeaderUser } from "./HeaderUser";
 
 type Props = {
   side: "user" | "maker";
@@ -8,12 +9,6 @@ type Props = {
 };
 
 const tabStyles = "flex flex-col justify-end gap-3.5 text-title-md whitespace-nowrap";
-
-// Test-only: there's no login yet, so this jumps between the two sides.
-const switchLinks = {
-  user: { href: "/maker/calls", label: "제작 업체로 전환" },
-  maker: { href: "/", label: "사용 업체로 전환" },
-};
 
 export function AppHeader({ side, active }: Props) {
   const tabs = side === "user" ? userTabs : makerTabs;
@@ -53,15 +48,7 @@ export function AppHeader({ side, active }: Props) {
         </nav>
         <div className="ml-auto flex shrink-0 items-center gap-3">
           {side === "maker" && <Badge tone="accent">제작 업체</Badge>}
-          <span className="text-body-md whitespace-nowrap text-secondary-700">
-            {headerUsers[side]}
-          </span>
-          <Link
-            href={switchLinks[side].href}
-            className="rounded-md border border-secondary-300 px-2 py-1 text-label-md whitespace-nowrap text-secondary-700 hover:border-secondary-500 hover:text-black"
-          >
-            {switchLinks[side].label}
-          </Link>
+          <HeaderUser side={side} />
         </div>
       </div>
     </header>

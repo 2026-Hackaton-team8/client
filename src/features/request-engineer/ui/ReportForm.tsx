@@ -1,62 +1,109 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import type { Consultation } from "@/entities/consultation";
-import type { Equipment } from "@/entities/equipment";
+import { useMe } from "@/entities/user";
+import {
+  equipmentApi,
+  errorMessage,
+  requestApi,
+  useApi,
+  type AiSummary,
+  type EquipmentState,
+  type RequestDetailResponse,
+  type Urgency,
+} from "@/shared/api";
 import {
   Badge,
   Button,
   ButtonLink,
+  LoadState,
   OptionGroup,
   Panel,
   Placeholder,
+  Select,
   TextArea,
   TextField,
 } from "@/shared/ui";
 
-type Props = {
-  consultation: Consultation;
-  equipment: Equipment;
-};
-
-const machineStates = [
-  { value: "stopped", label: "완전히 멈춤" },
-  { value: "partial", label: "일부만 가동" },
-  { value: "running", label: "정상 가동" },
+const machineStates: { value: EquipmentState; label: string }[] = [
+  { value: "STOPPED", label: "완전히 멈춤" },
+  { value: "PARTIAL", label: "일부만 가동" },
+  { value: "NORMAL", label: "정상 가동" },
 ];
 
-const urgencies = [
-  { value: "high", label: "긴급", description: "생산 중단" },
-  { value: "mid", label: "보통", description: "며칠 내" },
-  { value: "low", label: "낮음", description: "여유 있음" },
+const urgencies: { value: Urgency; label: string; description: string }[] = [
+  { value: "HIGH", label: "긴급", description: "생산 중단" },
+  { value: "MEDIUM", label: "보통", description: "며칠 내" },
+  { value: "LOW", label: "낮음", description: "여유 있음" },
 ];
 
-export function ReportForm({ consultation, equipment }: Props) {
-  const [machineState, setMachineState] = useState("stopped");
-  const [urgency, setUrgency] = useState("high");
-  const [summary, setSummary] = useState(
-    `증상: ${consultation.symptom}\n좁힌 원인: ${consultation.cause}\n시도한 조치: ${consultation.tried}`,
-  );
-  const [editingSummary, setEditingSummary] = useState(false);
-  const [files, setFiles] = useState<string[]>(["첨부 사진 1", "첨부 사진 2"]);
-  const [status, setStatus] = useState<"editing" | "saved" | "sent">("editing");
+const summaryFields: { key: keyof AiSummary; label: string; maxLength: number }[] = [
+  { key: "symptom", label: "증상", maxLength: 500 },
+  { key: "cause", label: "좁힌 원인", maxLength: 500 },
+  { key: "triedAction", label: "시도한 조치", maxLength: 1000 },
+];
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+export function ReportForm() {
+  const { data: me } = useMe();
+  const equipments = useApi(equipmentApi.list, "equipments");
+  const [equipmentId, setEquipmentId] = useState(useSearchParams()?.get("equipment") ?? "");
+  const [machineState, setMachineState] = useState<EquipmentState>("STOPPED");
+  const [urgency, setUrgency] = useState<Urgency>("HIGH");
+  // AI consultation isn't wired to the API yet, so the reporter fills the summary in.
+  const [summary, setSummary] = useState<AiSummary>({});
+  const [files, setFiles] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+  const [sent, setSent] = useState<RequestDetailResponse>();
+
+  // An id from the URL that isn't one of my equipments falls back to the first one.
+  const equipment =
+    equipments.data?.find((item) => String(item.id) === equipmentId) ?? equipments.data?.[0];
+  const selectedId = equipment ? String(equipment.id) : "";
+  const filledSummary = Object.fromEntries(
+    Object.entries(summary).filter(([, value]) => value?.trim()),
+  ) as AiSummary;
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("sent");
+    if (!equipment) return;
+    const data = new FormData(event.currentTarget);
+    const field = (name: string) => String(data.get(name) ?? "").trim();
+    setPending(true);
+    setError("");
+    try {
+      setSent(
+        await requestApi.create({
+          equipmentId: equipment.id,
+          aiSummary: Object.keys(filledSummary).length ? filledSummary : undefined,
+          symptomDetail: field("symptomDetail"),
+          equipmentState: machineState,
+          urgency,
+          contact: {
+            reporterName: field("reporterName"),
+            reporterPhone: field("reporterPhone"),
+            companyPhone: field("companyPhone"),
+          },
+        }),
+      );
+    } catch (caught) {
+      setError(errorMessage(caught));
+      setPending(false);
+    }
   }
 
-  if (status === "sent") {
+  if (sent) {
     return (
       <Panel tone="outline" className="flex-1 items-start">
         <Badge tone="primary">접수됨</Badge>
         <h2 className="text-title-lg text-black">신고서를 보냈어요</h2>
         <p className="text-body-md text-secondary-700">
-          요청번호 {consultation.id} · 제작 업체 호출 수신함에 올라갔어요. 엔지니어가 배정되면 알려
+          요청번호 {sent.requestNo} · 제작 업체 호출 수신함에 올라갔어요. 엔지니어가 배정되면 알려
           드릴게요.
         </p>
-        <ButtonLink href={`/consult/${consultation.id}`} variant="ghost">
-          상담 내역으로 돌아가기
+        <ButtonLink href={`/requests/${sent.id}`} variant="ghost">
+          진행 상황 보기
         </ButtonLink>
       </Panel>
     );
@@ -66,48 +113,63 @@ export function ReportForm({ consultation, equipment }: Props) {
     <form onSubmit={handleSubmit} className="min-w-0 flex-1">
       <Panel tone="outline" className="gap-6">
         <div className="flex flex-col gap-2">
-          <h2 className="text-label-lg text-black">설비</h2>
-          <p className="flex flex-wrap gap-x-3 rounded-lg border-2 border-secondary-100 px-4 py-3 text-body-md">
-            <span className="font-semibold text-black">{equipment.name}</span>
-            <span className="text-secondary-600">
-              {equipment.model} · {equipment.place} · {equipment.serial}
-            </span>
-          </p>
+          {equipments.loading || equipments.error ? (
+            <LoadState error={equipments.error} className="py-3" />
+          ) : equipments.data?.length === 0 ? (
+            <p className="text-body-md text-secondary-600">
+              먼저 설비를 등록해 주세요.{" "}
+              <ButtonLink href="/equipment/new" variant="ghost" size="sm">
+                설비 등록
+              </ButtonLink>
+            </p>
+          ) : (
+            <>
+              <Select
+                label="설비"
+                options={(equipments.data ?? []).map((item) => ({
+                  value: String(item.id),
+                  label: item.name,
+                }))}
+                value={selectedId}
+                onChange={(event) => setEquipmentId(event.target.value)}
+              />
+              {equipment && (
+                <p className="px-4 text-body-sm text-secondary-600">
+                  {equipment.model.code} · {equipment.location}
+                  {equipment.serialNumber && ` · ${equipment.serialNumber}`}
+                </p>
+              )}
+            </>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
           <h2 className="text-label-lg text-black">AI 상담 요약</h2>
-          <div className="flex flex-col gap-2 rounded-lg border-2 border-primary-100 bg-primary-50 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <Badge tone="primary">자동 입력</Badge>
-              <span className="flex-1 text-label-md font-normal text-secondary-600">
-                상담 대화에서 가져왔어요
-              </span>
-              <button
-                type="button"
-                onClick={() => setEditingSummary((value) => !value)}
-                className="cursor-pointer text-body-sm font-semibold text-primary-500 hover:text-primary-600"
-              >
-                {editingSummary ? "완료" : "수정"}
-              </button>
-            </div>
-            {editingSummary ? (
+          <div className="flex flex-col gap-3 rounded-lg border-2 border-primary-100 bg-primary-50 px-4 py-3">
+            <p className="text-label-md font-normal text-secondary-600">
+              상담에서 확인한 내용을 적어 주세요. 비워 두어도 돼요.
+            </p>
+            {summaryFields.map(({ key, label, maxLength }) => (
               <TextArea
-                label="AI 상담 요약 수정"
-                value={summary}
-                onChange={(event) => setSummary(event.target.value)}
-                rows={3}
+                key={key}
+                label={label}
+                rows={2}
+                maxLength={maxLength}
+                value={summary[key] ?? ""}
+                onChange={(event) =>
+                  setSummary((current) => ({ ...current, [key]: event.target.value }))
+                }
               />
-            ) : (
-              <p className="text-body-md whitespace-pre-line text-black">{summary}</p>
-            )}
+            ))}
           </div>
         </div>
 
         <TextArea
           label="증상 자세히"
+          name="symptomDetail"
           required
           rows={4}
+          maxLength={2000}
           placeholder="예: 오늘 아침 첫 세탁부터 탈수 단계에서 멈춰요."
           hint="언제부터, 어떤 상황에서 생기는지 적어 주세요. 엔지니어가 방문 전에 읽어요."
         />
@@ -118,14 +180,14 @@ export function ReportForm({ consultation, equipment }: Props) {
             required
             options={machineStates}
             value={machineState}
-            onChange={setMachineState}
+            onChange={(value) => setMachineState(value as EquipmentState)}
           />
           <OptionGroup
             legend="긴급도"
             required
             options={urgencies}
             value={urgency}
-            onChange={setUrgency}
+            onChange={(value) => setUrgency(value as Urgency)}
           />
         </div>
 
@@ -150,23 +212,45 @@ export function ReportForm({ consultation, equipment }: Props) {
               />
             </label>
           </div>
+          <p className="text-label-md font-normal text-secondary-600">
+            첨부 업로드는 아직 지원하지 않아 신고서에는 포함되지 않아요.
+          </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TextField label="담당자 연락처" type="tel" defaultValue="010-1234-5678" />
-          <TextField label="방문 가능 시간" defaultValue="평일 09:00 – 18:00" />
+        {/* Keyed on the user so the defaults fill in once /api/me arrives. */}
+        <div key={me?.userId ?? "loading"} className="grid gap-4 sm:grid-cols-3">
+          <TextField
+            label="담당자 이름"
+            name="reporterName"
+            maxLength={50}
+            defaultValue={me?.name}
+            required
+          />
+          <TextField
+            label="담당자 연락처"
+            name="reporterPhone"
+            type="tel"
+            defaultValue={me?.phone}
+            required
+          />
+          <TextField
+            label="회사 연락처"
+            name="companyPhone"
+            type="tel"
+            placeholder="02-000-0000"
+            required
+          />
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          {status === "saved" && (
-            <p role="status" className="mr-auto text-body-sm text-secondary-600">
-              임시 저장했어요.
+          {error && (
+            <p role="alert" className="mr-auto text-body-sm text-primary-600">
+              {error}
             </p>
           )}
-          <Button variant="ghost" onClick={() => setStatus("saved")}>
-            임시 저장
+          <Button type="submit" disabled={!equipment || pending}>
+            {pending ? "보내는 중…" : "신고서 제출하고 호출"}
           </Button>
-          <Button type="submit">신고서 제출하고 호출</Button>
         </div>
       </Panel>
     </form>

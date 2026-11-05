@@ -1,2 +1,2 @@
-export { manualsForModel, modelManuals } from "./model/mock";
-export type { ManualEntry, ModelManual } from "./model/types";
+export { sectionTypeLabels } from "./model/labels";
+export { loadManual } from "./model/loadManual";

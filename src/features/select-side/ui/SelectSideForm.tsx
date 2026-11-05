@@ -2,9 +2,26 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Button } from "@/shared/ui";
+import {
+  companyApi,
+  errorMessage,
+  homeForRole,
+  meApi,
+  updateSession,
+  useApi,
+  type CompanyType,
+  type Role,
+} from "@/shared/api";
+import { Button, Panel, Select, TextField } from "@/shared/ui";
 
 type Side = "user" | "maker";
+
+const accountBySide: Record<Side, { role: Role; companyType: CompanyType }> = {
+  user: { role: "WORKER", companyType: "USER_COMPANY" },
+  maker: { role: "STAFF", companyType: "MAKER_COMPANY" },
+};
+
+const NEW_COMPANY = "new";
 
 const options: { value: Side; title: string; caption: string; features: string[] }[] = [
   {
@@ -21,20 +38,55 @@ const options: { value: Side; title: string; caption: string; features: string[]
   },
 ];
 
-// No account API yet, so the choice only decides which home to open.
-const homeBySide: Record<Side, string> = {
-  user: "/",
-  maker: "/maker/calls",
-};
-
 export function SelectSideForm() {
   const router = useRouter();
   const [side, setSide] = useState<Side | null>(null);
+  const [companyId, setCompanyId] = useState("");
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   const selected = options.find((option) => option.value === side);
+  const companyType = side ? accountBySide[side].companyType : undefined;
+  const companies = useApi(
+    () => (companyType ? companyApi.list(companyType) : Promise.resolve([])),
+    companyType ?? "none",
+  );
+  const companyOptions = [
+    { value: "", label: "업체를 선택해 주세요" },
+    ...(companies.data ?? []).map((company) => ({
+      value: String(company.id),
+      label: `${company.name} · ${company.located}`,
+    })),
+    { value: NEW_COMPANY, label: "+ 새 업체 등록" },
+  ];
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (side) router.push(homeBySide[side]);
+    if (!side || !companyId) return;
+    const data = new FormData(event.currentTarget);
+    const field = (name: string) => String(data.get(name) ?? "").trim();
+    const { role, companyType } = accountBySide[side];
+    setPending(true);
+    setError("");
+    try {
+      const id =
+        companyId === NEW_COMPANY
+          ? (
+              await companyApi.create({
+                type: companyType,
+                name: field("companyName"),
+                located: field("located"),
+                businessNumber: field("businessNumber"),
+                phone: field("companyPhone"),
+              })
+            ).id
+          : Number(companyId);
+      const session = await meApi.selectRole({ role, companyId: id });
+      updateSession(session);
+      router.push(homeForRole(session.role));
+    } catch (caught) {
+      setError(errorMessage(caught));
+      setPending(false);
+    }
   }
 
   return (
@@ -57,7 +109,10 @@ export function SelectSideForm() {
                 name="side"
                 value={option.value}
                 checked={checked}
-                onChange={() => setSide(option.value)}
+                onChange={() => {
+                  setSide(option.value);
+                  setCompanyId("");
+                }}
                 className="sr-only"
               />
               <span className="flex items-start justify-between">
@@ -97,8 +152,45 @@ export function SelectSideForm() {
           );
         })}
       </fieldset>
+      {selected && (
+        <Panel tone="outline" title={`소속 ${selected.title}`} className="w-full max-w-186 gap-4">
+          <Select
+            label="업체"
+            options={companyOptions}
+            value={companyId}
+            onChange={(event) => setCompanyId(event.target.value)}
+            disabled={companies.loading}
+            required
+          />
+          {companyId === NEW_COMPANY && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <TextField label="업체명" name="companyName" maxLength={100} required />
+              <TextField
+                label="사업자등록번호"
+                name="businessNumber"
+                maxLength={50}
+                placeholder="000-00-00000"
+                required
+              />
+              <TextField label="주소" name="located" maxLength={255} required />
+              <TextField
+                label="대표 연락처"
+                name="companyPhone"
+                type="tel"
+                placeholder="02-000-0000"
+                required
+              />
+            </div>
+          )}
+          {error && (
+            <p role="alert" className="text-body-sm text-primary-600">
+              {error}
+            </p>
+          )}
+        </Panel>
+      )}
       <div className="flex w-80 flex-col items-center gap-3">
-        <Button type="submit" variant="strong" block disabled={!selected}>
+        <Button type="submit" variant="strong" block disabled={!selected || !companyId || pending}>
           {selected ? `${selected.title}로 시작하기` : "업체 유형을 선택해 주세요"}
         </Button>
         <p className="text-body-sm text-secondary-600">

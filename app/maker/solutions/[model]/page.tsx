@@ -1,12 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { equipmentModels, findModel } from "@/entities/equipment-model";
 import { MakerSolutionModelPage } from "@/pages/maker-solution-model";
 import { AppHeader } from "@/widgets/app-header";
-
-export function generateStaticParams() {
-  return equipmentModels.map((model) => ({ model: model.code }));
-}
 
 export default function Page({ params }: PageProps<"/maker/solutions/[model]">) {
   return (
@@ -17,8 +12,7 @@ export default function Page({ params }: PageProps<"/maker/solutions/[model]">) 
 }
 
 async function ModelRoute({ params }: Pick<PageProps<"/maker/solutions/[model]">, "params">) {
-  const { model: code } = await params;
-  const model = findModel(code);
-  if (!model) notFound();
-  return <MakerSolutionModelPage model={model} />;
+  const modelId = Number((await params).model);
+  if (!Number.isInteger(modelId)) notFound();
+  return <MakerSolutionModelPage modelId={modelId} />;
 }

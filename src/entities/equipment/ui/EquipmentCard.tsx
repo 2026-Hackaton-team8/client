@@ -1,17 +1,17 @@
 import type { ReactNode } from "react";
+import type { EquipmentResponse } from "@/shared/api";
 import { Placeholder } from "@/shared/ui";
-import type { Equipment } from "../model/types";
 
 type Props = {
-  equipment: Equipment;
+  equipment: EquipmentResponse;
   actions?: ReactNode;
 };
 
 export function EquipmentCard({ equipment, actions }: Props) {
   const specs = [
-    ["모델", equipment.model],
-    ["위치", equipment.place],
-    ["최근 A/S", equipment.lastService],
+    ["모델", `${equipment.model.code} · ${equipment.model.name}`],
+    ["위치", equipment.location],
+    ["시리얼", equipment.serialNumber || "—"],
   ];
 
   return (

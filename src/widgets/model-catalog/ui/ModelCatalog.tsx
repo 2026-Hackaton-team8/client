@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { equipmentModels } from "@/entities/equipment-model";
-import { formatShortDate } from "@/shared/lib";
-import { Badge, PageHeading, Placeholder, TextField } from "@/shared/ui";
+import { makerApi, useApi } from "@/shared/api";
+import { formatShortDate, toDotDate } from "@/shared/lib";
+import { LoadState, PageHeading, Placeholder, TextField } from "@/shared/ui";
 
-const columns = ["설치 대수", "수리 이력", "승인된 솔루션", "검토 대기", "최근 수리"];
+const columns = ["분류", "설치 대수", "수리 이력", "최근 수리"];
 
 export function ModelCatalog() {
   const [query, setQuery] = useState("");
+  const models = useApi(makerApi.models, "maker-models");
   const keyword = query.trim().toLowerCase();
-  const rows = equipmentModels.filter(
+  const rows = (models.data ?? []).filter(
     (model) =>
       !keyword || model.code.toLowerCase().includes(keyword) || model.name.includes(query.trim()),
   );
@@ -57,7 +58,7 @@ export function ModelCatalog() {
           </thead>
           <tbody>
             {rows.map((model) => (
-              <tr key={model.code} className="border-b border-secondary-100 last:border-b-0">
+              <tr key={model.id} className="border-b border-secondary-100 last:border-b-0">
                 <td className="px-6 py-3.5">
                   <div className="flex items-center gap-3.5">
                     <Placeholder label={`${model.code} 썸네일`} className="size-12 shrink-0" />
@@ -67,22 +68,19 @@ export function ModelCatalog() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-3.5 text-body-md text-black">{model.installs}대</td>
-                <td className="px-6 py-3.5 text-body-md text-black">{model.repairs}건</td>
-                <td className="px-6 py-3.5 text-body-md text-black">{model.approvedSolutions}개</td>
-                <td className="px-6 py-3.5">
-                  {model.pendingDrafts > 0 ? (
-                    <Badge tone="strong">{model.pendingDrafts}건</Badge>
-                  ) : (
-                    <span className="text-body-md text-secondary-600">—</span>
-                  )}
+                <td className="px-6 py-3.5 text-body-md whitespace-nowrap text-black">
+                  {model.category}
+                </td>
+                <td className="px-6 py-3.5 text-body-md text-black">{model.installedCount}대</td>
+                <td className="px-6 py-3.5 text-body-md text-black">
+                  {model.repairHistoryCount}건
                 </td>
                 <td className="px-6 py-3.5 text-body-sm text-secondary-600">
-                  {formatShortDate(model.lastRepair)}
+                  {model.lastRepairedAt ? formatShortDate(toDotDate(model.lastRepairedAt)) : "—"}
                 </td>
                 <td className="px-6 py-3.5">
                   <Link
-                    href={`/maker/solutions/${model.code}`}
+                    href={`/maker/solutions/${model.id}`}
                     aria-label={`${model.code} 솔루션 열기`}
                     className="text-label-lg whitespace-nowrap text-primary-500 hover:text-primary-600"
                   >
@@ -93,10 +91,14 @@ export function ModelCatalog() {
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && (
-          <p className="px-6 py-10 text-center text-body-md text-secondary-600">
-            검색한 모델이 없어요.
-          </p>
+        {models.loading || models.error ? (
+          <LoadState error={models.error} />
+        ) : (
+          rows.length === 0 && (
+            <p className="px-6 py-10 text-center text-body-md text-secondary-600">
+              {keyword ? "검색한 모델이 없어요." : "아직 등록한 모델이 없어요."}
+            </p>
+          )
         )}
       </div>
     </>

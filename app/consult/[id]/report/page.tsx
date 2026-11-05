@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { consultations, findConsultation } from "@/entities/consultation";
-import { findEquipment } from "@/entities/equipment";
 import { ConsultReportPage } from "@/pages/consult-report";
 import { AppHeader } from "@/widgets/app-header";
 
@@ -20,7 +19,6 @@ export default function Page({ params }: PageProps<"/consult/[id]/report">) {
 async function ReportRoute({ params }: Pick<PageProps<"/consult/[id]/report">, "params">) {
   const { id } = await params;
   const consultation = findConsultation(id);
-  const equipment = consultation && findEquipment(consultation.equipmentId);
-  if (!consultation || !equipment) notFound();
-  return <ConsultReportPage consultation={consultation} equipment={equipment} />;
+  if (!consultation) notFound();
+  return <ConsultReportPage consultation={consultation} />;
 }
