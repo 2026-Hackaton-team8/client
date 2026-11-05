@@ -37,11 +37,12 @@ const machineStates: { value: EquipmentState; label: string }[] = [
   { value: "NORMAL", label: "정상 가동" },
 ];
 
-const urgencies: { value: Urgency; label: string; description: string }[] = [
-  { value: "HIGH", label: "긴급", description: "생산 중단" },
-  { value: "MEDIUM", label: "보통", description: "며칠 내" },
-  { value: "LOW", label: "낮음", description: "여유 있음" },
-];
+// The API still requires an urgency; the form no longer asks, so it follows the machine state.
+const urgencyByState: Record<EquipmentState, Urgency> = {
+  STOPPED: "HIGH",
+  PARTIAL: "MEDIUM",
+  NORMAL: "LOW",
+};
 
 const summaryFields: { key: keyof AiSummary; label: string; maxLength: number }[] = [
   { key: "symptom", label: "증상", maxLength: 500 },
@@ -70,7 +71,6 @@ type FieldsProps = {
 function ReportFields({ consultationId, draft }: FieldsProps) {
   const { data: me } = useMe();
   const [machineState, setMachineState] = useState<EquipmentState>("STOPPED");
-  const [urgency, setUrgency] = useState<Urgency>("HIGH");
   const [summary, setSummary] = useState<AiSummary>(draft.aiSummary ?? {});
   const [editingSummary, setEditingSummary] = useState(false);
   const [files, setFiles] = useState<Attachment[]>([]);
@@ -112,7 +112,7 @@ function ReportFields({ consultationId, draft }: FieldsProps) {
           aiSummary: Object.keys(filled).length ? filled : undefined,
           symptomDetail: field("symptomDetail"),
           equipmentState: machineState,
-          urgency,
+          urgency: urgencyByState[machineState],
           contact: {
             reporterName: field("reporterName"),
             reporterPhone: field("reporterPhone"),
@@ -214,22 +214,13 @@ function ReportFields({ consultationId, draft }: FieldsProps) {
           hint="언제부터, 어떤 상황에서 생기는지 적어 주세요. 엔지니어가 방문 전에 읽어요."
         />
 
-        <div className="flex flex-col gap-6 md:flex-row md:gap-4">
-          <OptionGroup
-            legend="설비 상태"
-            required
-            options={machineStates}
-            value={machineState}
-            onChange={(value) => setMachineState(value as EquipmentState)}
-          />
-          <OptionGroup
-            legend="긴급도"
-            required
-            options={urgencies}
-            value={urgency}
-            onChange={(value) => setUrgency(value as Urgency)}
-          />
-        </div>
+        <OptionGroup
+          legend="설비 상태"
+          required
+          options={machineStates}
+          value={machineState}
+          onChange={(value) => setMachineState(value as EquipmentState)}
+        />
 
         <div className="flex flex-col gap-2">
           <h2 className="text-label-lg text-black">
