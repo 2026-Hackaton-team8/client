@@ -1,3 +1,7 @@
-export { findServiceCall, serviceCalls } from "./model/mock";
-export type { CallStatus, CallUrgency, ServiceCall, SuspectPart, Visit } from "./model/types";
+export {
+  callReasonLabels,
+  equipmentStateLabels,
+  isVisitDue,
+  requestStatusLabels,
+} from "./model/labels";
 export { UrgencyBadge } from "./ui/UrgencyBadge";

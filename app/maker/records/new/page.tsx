@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
-import { findServiceCall } from "@/entities/service-call";
 import { MakerRepairRecordPage } from "@/pages/maker-repair-record";
 import { AppHeader } from "@/widgets/app-header";
 
@@ -16,9 +15,9 @@ export default function Page({ searchParams }: PageProps<"/maker/records/new">) 
 async function RecordRoute({
   searchParams,
 }: Pick<PageProps<"/maker/records/new">, "searchParams">) {
-  const { call: callId } = await searchParams;
-  if (typeof callId !== "string") redirect("/maker/records");
-  const call = findServiceCall(callId);
-  if (!call) notFound();
-  return <MakerRepairRecordPage call={call} />;
+  const { call } = await searchParams;
+  if (typeof call !== "string") redirect("/maker/records");
+  const requestId = Number(call);
+  if (!Number.isInteger(requestId)) notFound();
+  return <MakerRepairRecordPage requestId={requestId} />;
 }

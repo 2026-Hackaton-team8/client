@@ -1,5 +1,6 @@
 import { SelectSideForm } from "@/features/select-side";
 import { Logo } from "@/shared/ui";
+import { OnboardingUser } from "./OnboardingUser";
 
 export function OnboardingPage() {
   return (
@@ -7,7 +8,7 @@ export function OnboardingPage() {
       <header className="border-b border-secondary-100 bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 md:px-10">
           <Logo />
-          <span className="text-body-md text-secondary-700">홍길동 · name@company.com</span>
+          <OnboardingUser />
         </div>
       </header>
       <main className="flex flex-1 flex-col items-center justify-center gap-10 px-6 py-16">

@@ -2,42 +2,32 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  ConsultStatusBadge,
-  consultations,
-  consultStatusLabels,
-  type ConsultStatus,
-} from "@/entities/consultation";
-import { findEquipment } from "@/entities/equipment";
-import { Chip, PageHeading } from "@/shared/ui";
+import { requestStatusLabels, UrgencyBadge } from "@/entities/service-call";
+import { requestApi, useApi, type RequestStatus } from "@/shared/api";
+import { formatDateTime } from "@/shared/lib";
+import { Badge, Chip, LoadState, PageHeading } from "@/shared/ui";
 
-type Filter = "all" | ConsultStatus;
+type Filter = "all" | RequestStatus;
 
-const filters: Filter[] = ["all", "progress", "calling", "resolved"];
-
-function count(filter: Filter) {
-  return filter === "all"
-    ? consultations.length
-    : consultations.filter((consultation) => consultation.status === filter).length;
-}
+const filters: Filter[] = ["all", "RECEIVED", "ASSIGNED", "COMPLETED", "SELF_RESOLVED"];
 
 export function ConsultHistory() {
   const [filter, setFilter] = useState<Filter>("all");
-  const rows =
-    filter === "all"
-      ? consultations
-      : consultations.filter((consultation) => consultation.status === filter);
+  const { data: requests = [], error, loading } = useApi(requestApi.list, "my-requests");
+  const count = (item: Filter) =>
+    item === "all" ? requests.length : requests.filter((r) => r.status === item).length;
+  const rows = filter === "all" ? requests : requests.filter((r) => r.status === filter);
 
   return (
     <>
       <PageHeading
-        title="상담 내역"
-        description="지금까지 진행한 고장 상담이에요. 항목을 누르면 상담 내용을 다시 볼 수 있어요."
+        title="호출 내역"
+        description="담당자를 호출한 건이에요. 항목을 누르면 진행 상황을 볼 수 있어요."
         action={
           <div role="group" aria-label="상태 필터" className="flex flex-wrap gap-2">
             {filters.map((item) => (
               <Chip key={item} selected={filter === item} onClick={() => setFilter(item)}>
-                {item === "all" ? "전체" : consultStatusLabels[item]} {count(item)}
+                {item === "all" ? "전체" : requestStatusLabels[item]} {count(item)}
               </Chip>
             ))}
           </div>
@@ -53,53 +43,62 @@ export function ConsultHistory() {
               <th scope="col" className="px-6 py-3.5 font-semibold">
                 증상
               </th>
-              <th scope="col" className="w-55 px-6 py-3.5 font-semibold">
-                AI가 좁힌 원인
+              <th scope="col" className="w-24 px-6 py-3.5 font-semibold">
+                긴급도
               </th>
-              <th scope="col" className="w-30 px-6 py-3.5 font-semibold">
+              <th scope="col" className="w-34 px-6 py-3.5 font-semibold">
                 상태
               </th>
-              <th scope="col" className="w-28 px-6 py-3.5 font-semibold">
-                상담일
+              <th scope="col" className="w-40 px-6 py-3.5 font-semibold">
+                호출일
               </th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((consultation) => {
-              const equipment = findEquipment(consultation.equipmentId);
-              return (
+            {!loading &&
+              rows.map((request) => (
                 <tr
-                  key={consultation.id}
+                  key={request.id}
                   className="relative border-b border-secondary-100 last:border-b-0 hover:bg-secondary-50"
                 >
                   <td className="px-6 py-4.5">
-                    <p className="text-title-md text-black">{equipment?.name}</p>
+                    <p className="text-title-md text-black">{request.equipmentName}</p>
                     <p className="text-body-sm text-secondary-600">
-                      {equipment?.model} · {equipment?.place}
+                      {request.modelCode} · {request.requestNo}
                     </p>
                   </td>
                   <td className="px-6 py-4.5 text-body-md text-black">
                     <Link
-                      href={`/consult/${consultation.id}`}
+                      href={`/requests/${request.id}`}
                       className="after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-primary-500"
                     >
-                      {consultation.symptom}
+                      {request.symptomSummary}
                     </Link>
                   </td>
-                  <td className="px-6 py-4.5 text-body-md text-secondary-700">
-                    {consultation.cause}
+                  <td className="px-6 py-4.5">
+                    <UrgencyBadge urgency={request.urgency} />
                   </td>
                   <td className="px-6 py-4.5">
-                    <ConsultStatusBadge status={consultation.status} />
+                    <Badge tone={request.status === "RECEIVED" ? "strong" : "neutral"}>
+                      {requestStatusLabels[request.status]}
+                    </Badge>
                   </td>
                   <td className="px-6 py-4.5 text-body-sm text-secondary-600">
-                    {consultation.dateLabel}
+                    {formatDateTime(request.createdAt)}
                   </td>
                 </tr>
-              );
-            })}
+              ))}
           </tbody>
         </table>
+        {loading || error ? (
+          <LoadState error={error} />
+        ) : (
+          rows.length === 0 && (
+            <p className="px-6 py-10 text-center text-body-md text-secondary-600">
+              해당하는 호출이 없어요.
+            </p>
+          )
+        )}
       </div>
     </>
   );

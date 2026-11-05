@@ -1,24 +1,23 @@
 import type { Consultation } from "@/entities/consultation";
-import type { Equipment } from "@/entities/equipment";
 import { Panel, UnityViewer } from "@/shared/ui";
 
 type Props = {
-  equipment: Equipment;
+  name: string;
+  details: string;
+  equipmentCode?: string;
   suspect: Consultation["suspect"];
 };
 
-export function ModelViewer({ equipment, suspect }: Props) {
+export function ModelViewer({ name, details, equipmentCode, suspect }: Props) {
   return (
     <Panel tone="plain" className="flex-1 gap-4">
       <div className="flex flex-col gap-1">
-        <h2 className="text-title-lg text-black">{equipment.name}</h2>
-        <p className="text-body-sm text-secondary-600">
-          {equipment.model} · {equipment.place}
-        </p>
+        <h2 className="text-title-lg text-black">{name}</h2>
+        <p className="text-body-sm text-secondary-600">{details}</p>
       </div>
       <UnityViewer
-        label={`${equipment.name} 3D 모델`}
-        equipmentCode={equipment.unityCode}
+        label={`${name} 3D 모델`}
+        equipmentCode={equipmentCode}
         partCode={suspect.unityPart}
         className="h-140"
       >
