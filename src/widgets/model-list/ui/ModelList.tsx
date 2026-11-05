@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { makerApi, useApi } from "@/shared/api";
 import { formatShortDate, toDotDate } from "@/shared/lib";
-import { LoadState, PageHeading, Placeholder, TextField } from "@/shared/ui";
+import { LoadState, PageHeading, TextField } from "@/shared/ui";
 
 const columns = ["분류", "설치 대수", "수리 이력", "최근 수리"];
 
@@ -60,13 +60,8 @@ export function ModelList() {
             {rows.map((model) => (
               <tr key={model.id} className="border-b border-secondary-100 last:border-b-0">
                 <td className="px-6 py-3.5">
-                  <div className="flex items-center gap-3.5">
-                    <Placeholder label={`${model.code} 썸네일`} className="size-12 shrink-0" />
-                    <div>
-                      <p className="text-title-md text-black">{model.code}</p>
-                      <p className="text-body-sm text-secondary-600">{model.name}</p>
-                    </div>
-                  </div>
+                  <p className="text-title-md text-black">{model.code}</p>
+                  <p className="text-body-sm text-secondary-600">{model.name}</p>
                 </td>
                 <td className="px-6 py-3.5 text-body-md whitespace-nowrap text-black">
                   {model.category}

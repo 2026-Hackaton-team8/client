@@ -9,7 +9,6 @@ export { OptionGroup } from "./OptionGroup";
 export { PageHeading } from "./PageHeading";
 export { PageMain } from "./PageMain";
 export { Panel, type PanelTone } from "./Panel";
-export { Placeholder } from "./Placeholder";
 export { Select } from "./Select";
 export { TextArea } from "./TextArea";
 export { TextField } from "./TextField";

@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { EquipmentResponse } from "@/shared/api";
-import { Placeholder } from "@/shared/ui";
 
 type Props = {
   equipment: EquipmentResponse;
@@ -16,7 +15,6 @@ export function EquipmentCard({ equipment, actions }: Props) {
 
   return (
     <article className="flex h-full flex-col gap-4 rounded-lg bg-secondary-50 p-5">
-      <Placeholder label={`${equipment.name} 사진`} className="h-35" />
       <div className="flex flex-1 flex-col gap-3">
         <h3 className="text-title-md text-black">{equipment.name}</h3>
         <dl className="flex flex-col gap-1.5 text-label-md font-normal">

@@ -135,15 +135,8 @@ export function RepairHistory() {
                   {toDotDate(record.repairedAt)}
                 </td>
                 <td className={cell}>
-                  <div className="flex items-center gap-3.5">
-                    <span aria-hidden className="size-12 shrink-0 rounded-lg bg-secondary-100" />
-                    <span className="flex flex-col">
-                      <span className="text-title-md text-black">{record.equipment.modelCode}</span>
-                      <span className="text-body-sm text-secondary-600">
-                        {record.equipment.modelName}
-                      </span>
-                    </span>
-                  </div>
+                  <p className="text-title-md text-black">{record.equipment.modelCode}</p>
+                  <p className="text-body-sm text-secondary-600">{record.equipment.modelName}</p>
                 </td>
                 <td className={cell}>
                   <p className="text-body-md text-black">{record.part.name}</p>
