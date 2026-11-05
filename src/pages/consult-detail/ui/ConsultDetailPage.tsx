@@ -27,6 +27,8 @@ export function ConsultDetailPage({ consultationId }: Props) {
     () => (modelId ? modelApi.get(modelId) : Promise.resolve(undefined)),
     `model:${modelId}`,
   );
+  // The suspected part is pointed out in 3D only once the AI offers a solution.
+  const solved = latest?.messages.some((message) => message.type === "SOLUTION");
 
   return (
     <>
@@ -47,7 +49,7 @@ export function ConsultDetailPage({ consultationId }: Props) {
                 name={latest.equipment.name}
                 details={`${latest.equipment.modelCode} · ${latest.equipment.location}`}
                 equipmentCode={unityCodeFor(model.data)}
-                suspect={latest.suspectedPart}
+                suspect={solved ? latest.suspectedPart : undefined}
               />
               <ConsultChat consultation={latest} onChange={setLatest} />
             </div>
