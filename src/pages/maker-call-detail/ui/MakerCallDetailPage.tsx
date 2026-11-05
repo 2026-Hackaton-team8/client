@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { findEquipment } from "@/entities/equipment";
 import { recordsForModel } from "@/entities/repair-record";
 import { UrgencyBadge, type ServiceCall } from "@/entities/service-call";
 import { AssignEngineerForm } from "@/features/assign-engineer";
 import { formatMonthDay } from "@/shared/lib";
-import { Badge, Button, ButtonLink, PageHeading, PageMain, Panel, Placeholder } from "@/shared/ui";
+import { Badge, Button, ButtonLink, PageHeading, PageMain, Panel, UnityViewer } from "@/shared/ui";
 import { AppHeader } from "@/widgets/app-header";
 
 type Props = {
@@ -106,7 +107,11 @@ export function MakerCallDetailPage({ call }: Props) {
 
           <aside className="flex shrink-0 flex-col gap-6 lg:w-95">
             <Panel title="의심 부품 위치" className="gap-3">
-              <Placeholder label={`${call.model} 3D 모델, 의심 부품 표시`} className="h-50" />
+              <UnityViewer
+                label={`${call.model} 3D 모델`}
+                modelIndex={findEquipment(call.equipmentId)?.unityIndex}
+                className="h-80"
+              />
               <ul className="flex flex-col gap-2">
                 {call.suspectParts.map((part) => (
                   <li

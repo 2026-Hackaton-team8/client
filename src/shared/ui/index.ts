@@ -11,3 +11,4 @@ export { Placeholder } from "./Placeholder";
 export { Select } from "./Select";
 export { TextArea } from "./TextArea";
 export { TextField } from "./TextField";
+export { UnityViewer } from "./UnityViewer";
