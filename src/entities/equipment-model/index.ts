@@ -1,2 +1,2 @@
-export { equipmentModels } from "./model/mock";
-export type { EquipmentModel } from "./model/types";
+export { equipmentModels, findModel } from "./model/mock";
+export type { EquipmentModel, ModelPart } from "./model/types";

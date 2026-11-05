@@ -1,84 +1,44 @@
-"use client";
-
-import { useState } from "react";
-import type { Consultation } from "@/entities/consultation";
-import { EquipmentCard, type Equipment } from "@/entities/equipment";
-import { Button, ButtonLink, PageHeading, TextField } from "@/shared/ui";
+import { consultations } from "@/entities/consultation";
+import { EquipmentCard, equipments } from "@/entities/equipment";
+import { ButtonLink, PageHeading } from "@/shared/ui";
 import { RecentConsultations } from "./RecentConsultations";
 
-type Props = {
-  equipments: Equipment[];
-  consultations: Consultation[];
-};
+// Until a "start consultation" screen exists, 고장 상담 opens the equipment's latest consultation.
+function consultHref(equipmentId: string) {
+  const latest = consultations.find((consultation) => consultation.equipmentId === equipmentId);
+  return `/consult/${latest?.id ?? consultations[0].id}`;
+}
 
-export function EquipmentBoard({ equipments, consultations }: Props) {
-  const [query, setQuery] = useState("");
-  const keyword = query.trim();
-  const visible = keyword
-    ? equipments.filter((equipment) => equipment.name.includes(keyword))
-    : equipments;
-
+export function EquipmentBoard() {
   return (
-    <div className="grid items-start gap-10 lg:grid-cols-3">
-      <section className="flex min-w-0 flex-col gap-8 lg:col-span-2">
+    <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
+      <section className="flex min-w-0 flex-1 flex-col gap-6">
         <PageHeading
           title="내 설비"
-          description="고장이 나면 설비를 골라 상담하세요"
-          action={
-            <Button variant="soft" size="lg">
-              장비 등록
-            </Button>
-          }
+          description="고장이 나면 설비를 골라 상담을 시작하세요."
+          action={<ButtonLink href="/equipment/new">+ 설비 등록</ButtonLink>}
         />
-        {visible.length > 0 ? (
-          <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.map((equipment) => (
-              <li key={equipment.id}>
-                <EquipmentCard
-                  equipment={equipment}
-                  actions={
-                    <>
-                      <ButtonLink
-                        href={`/consult?equipment=${equipment.id}`}
-                        className="flex-1"
-                        aria-label={`${equipment.name} 수리 상담`}
-                      >
-                        수리 상담
-                      </ButtonLink>
-                      <ButtonLink
-                        href={`/equipment/${equipment.id}`}
-                        variant="secondary"
-                        className="flex-1"
-                        aria-label={`${equipment.name} 수리 내역`}
-                      >
-                        수리 내역
-                      </ButtonLink>
-                    </>
-                  }
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-title-md text-secondary-600">
-            &lsquo;{keyword}&rsquo;에 맞는 설비가 없어요.
-          </p>
-        )}
+        <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {equipments.map((equipment) => (
+            <li key={equipment.id}>
+              <EquipmentCard
+                equipment={equipment}
+                actions={
+                  <div className="flex gap-2">
+                    <ButtonLink href={consultHref(equipment.id)} size="sm" block className="flex-1">
+                      고장 상담
+                    </ButtonLink>
+                    <ButtonLink href="/consult" size="sm" variant="ghost" block className="flex-1">
+                      수리 이력
+                    </ButtonLink>
+                  </div>
+                }
+              />
+            </li>
+          ))}
+        </ul>
       </section>
-
-      <aside className="flex min-w-0 flex-col gap-8">
-        <div>
-          <TextField
-            type="search"
-            label="장비명으로 검색하기"
-            hideLabel
-            placeholder="장비명으로 검색하기"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </div>
-        <RecentConsultations items={consultations} />
-      </aside>
+      <RecentConsultations />
     </div>
   );
 }

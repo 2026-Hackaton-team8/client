@@ -1,9 +1,163 @@
 import type { Consultation } from "./types";
 
-export const recentConsultations: Consultation[] = [
-  { id: "AS-1044", equipmentId: "eq-1", equipmentName: "A라인 세탁기", date: "2026.11.02" },
-  { id: "AS-1043", equipmentId: "eq-2", equipmentName: "B라인 세탁기", date: "2026.11.03" },
-  { id: "AS-1038", equipmentId: "eq-1", equipmentName: "A라인 세탁기", date: "2026.10.10" },
+const drainSolution = {
+  title: "배수 필터가 막혔을 가능성이 높아요",
+  steps: [
+    "전원을 끄고 전면 하단 왼쪽 커버를 열어요.",
+    "받침 그릇을 두고 배수 필터를 왼쪽으로 돌려 빼요.",
+    "이물질을 없애고 다시 끼운 뒤 탈수를 돌려 봐요.",
+  ],
+  source: "근거: 매뉴얼 p.32 문제 해결 · 같은 모델 수리 이력 3건",
+};
+
+export const consultations: Consultation[] = [
+  {
+    id: "AS-1044",
+    equipmentId: "eq-1",
+    symptom: "탈수가 안 되고 통에 물이 남아 있어요",
+    summary: "탈수 안 됨 · 배수 필터 청소 후에도 동일",
+    cause: "배수 필터 막힘",
+    tried: "배수 필터 청소 → 해결 안 됨",
+    status: "calling",
+    dateLabel: "오늘 10:42",
+    questions: 2,
+    maxQuestions: 5,
+    candidates: [
+      { name: "배수 펌프", ruledOut: true },
+      { name: "도어 센서", ruledOut: true },
+      { name: "배수 필터", ruledOut: false },
+    ],
+    messages: [
+      { id: "m1", from: "ai", text: "어떤 증상이 있나요?" },
+      { id: "m2", from: "user", text: "탈수가 안 되고 통에 물이 남아 있어요" },
+      { id: "m3", from: "ai", text: "배수할 때 펌프 돌아가는 소리가 들리나요?" },
+      { id: "m4", from: "user", text: "네, 소리는 나요" },
+    ],
+    solution: drainSolution,
+    suspect: { code: "P-07", name: "배수 필터", location: "전면 하단 왼쪽 커버 안쪽" },
+  },
+  {
+    id: "AS-1043",
+    equipmentId: "eq-3",
+    symptom: "가동 중에 진동이 심해요",
+    summary: "가동 중 큰 진동",
+    cause: "드럼 베어링 마모 의심",
+    tried: "수평 조절 → 해결 안 됨",
+    status: "progress",
+    dateLabel: "11.03",
+    questions: 3,
+    maxQuestions: 5,
+    candidates: [
+      { name: "수평 불량", ruledOut: true },
+      { name: "드럼 베어링", ruledOut: false },
+    ],
+    messages: [
+      { id: "m1", from: "ai", text: "어떤 증상이 있나요?" },
+      { id: "m2", from: "user", text: "가동 중에 진동이 심해요" },
+      { id: "m3", from: "ai", text: "빨래 양이 적을 때도 진동이 있나요?" },
+      { id: "m4", from: "user", text: "네, 비어 있어도 흔들려요" },
+    ],
+    solution: {
+      title: "드럼 베어링 마모가 의심돼요",
+      steps: ["설비 다리 네 곳의 수평을 다시 맞춰요.", "빈 상태로 탈수를 돌려 소음을 확인해요."],
+      source: "근거: 매뉴얼 p.41 진동 · 같은 모델 수리 이력 2건",
+    },
+    suspect: { code: "P-14", name: "드럼 베어링", location: "후면 하단 중앙" },
+  },
+  {
+    id: "AS-1038",
+    equipmentId: "eq-4",
+    symptom: "급수가 안 돼요",
+    summary: "급수 안 됨 · 수도 밸브 열림 확인",
+    cause: "급수 밸브 잠김",
+    tried: "급수 밸브 열기 → 해결",
+    status: "resolved",
+    dateLabel: "10.28",
+    questions: 2,
+    maxQuestions: 5,
+    candidates: [{ name: "급수 밸브", ruledOut: false }],
+    messages: [
+      { id: "m1", from: "ai", text: "어떤 증상이 있나요?" },
+      { id: "m2", from: "user", text: "급수가 안 돼요" },
+    ],
+    solution: {
+      title: "급수 밸브가 잠겨 있을 수 있어요",
+      steps: ["설비 뒤쪽 수도 밸브가 열려 있는지 확인해요.", "급수 호스가 꺾이지 않았는지 봐요."],
+      source: "근거: 매뉴얼 p.28 급수",
+    },
+    suspect: { code: "P-02", name: "급수 밸브", location: "후면 상단 오른쪽" },
+  },
+  {
+    id: "AS-1036",
+    equipmentId: "eq-5",
+    symptom: "도어 잠김 표시가 깜빡여요",
+    summary: "도어 잠김 표시 깜빡임",
+    cause: "도어 센서 접촉 불량",
+    tried: "도어 다시 닫기 → 해결 안 됨",
+    status: "calling",
+    dateLabel: "10.21",
+    questions: 4,
+    maxQuestions: 5,
+    candidates: [{ name: "도어 센서", ruledOut: false }],
+    messages: [
+      { id: "m1", from: "ai", text: "어떤 증상이 있나요?" },
+      { id: "m2", from: "user", text: "도어 잠김 표시가 깜빡여요" },
+    ],
+    solution: {
+      title: "도어 센서 접촉이 불량할 수 있어요",
+      steps: ["도어를 열고 고무 패킹에 이물질이 없는지 봐요.", "도어를 힘주어 닫고 다시 시작해요."],
+      source: "근거: 매뉴얼 p.19 도어",
+    },
+    suspect: { code: "P-03", name: "도어 잠금장치", location: "도어 오른쪽 안쪽" },
+  },
+  {
+    id: "AS-1033",
+    equipmentId: "eq-2",
+    symptom: "세제 투입구에 물이 고여요",
+    summary: "세제 투입구 물 고임",
+    cause: "세제 투입구 막힘",
+    tried: "투입구 청소 → 해결",
+    status: "resolved",
+    dateLabel: "10.12",
+    questions: 2,
+    maxQuestions: 5,
+    candidates: [{ name: "세제 투입구", ruledOut: false }],
+    messages: [
+      { id: "m1", from: "ai", text: "어떤 증상이 있나요?" },
+      { id: "m2", from: "user", text: "세제 투입구에 물이 고여요" },
+    ],
+    solution: {
+      title: "세제 투입구가 막혔을 수 있어요",
+      steps: ["투입구 서랍을 빼서 따뜻한 물로 씻어요.", "안쪽 노즐 구멍을 솔로 닦아요."],
+      source: "근거: 매뉴얼 p.35 세제",
+    },
+    suspect: { code: "P-05", name: "세제 투입구", location: "전면 상단 왼쪽" },
+  },
+  {
+    id: "AS-1029",
+    equipmentId: "eq-6",
+    symptom: "건조 후에도 빨래가 축축해요",
+    summary: "건조 불량",
+    cause: "배기 필터 먼지 쌓임",
+    tried: "배기 필터 청소 → 해결",
+    status: "resolved",
+    dateLabel: "09.30",
+    questions: 2,
+    maxQuestions: 5,
+    candidates: [{ name: "배기 필터", ruledOut: false }],
+    messages: [
+      { id: "m1", from: "ai", text: "어떤 증상이 있나요?" },
+      { id: "m2", from: "user", text: "건조 후에도 빨래가 축축해요" },
+    ],
+    solution: {
+      title: "배기 필터에 먼지가 쌓였을 수 있어요",
+      steps: ["도어 안쪽 배기 필터를 빼요.", "먼지를 털고 물로 씻은 뒤 말려서 끼워요."],
+      source: "근거: 매뉴얼 p.22 건조",
+    },
+    suspect: { code: "P-08", name: "배기 필터", location: "도어 안쪽 아래" },
+  },
 ];
 
-export const symptomOptions = ["과열", "알람 코드", "이상 소음", "진동", "배수 불량", "전원 꺼짐"];
+export function findConsultation(id: string) {
+  return consultations.find((consultation) => consultation.id === id);
+}

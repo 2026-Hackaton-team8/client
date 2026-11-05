@@ -1,9 +1,18 @@
-export type EquipmentModel = {
-  id: string;
-  name: string;
+export type ModelPart = {
   code: string;
-  file: string;
-  parts: number;
+  name: string;
+};
+
+export type EquipmentModel = {
+  code: string;
+  name: string;
+  category: string;
+  maker: string;
   installs: number;
-  updatedAt: string;
+  repairs: number;
+  approvedSolutions: number;
+  pendingDrafts: number;
+  lastRepair: string;
+  partCount: number;
+  parts: ModelPart[];
 };

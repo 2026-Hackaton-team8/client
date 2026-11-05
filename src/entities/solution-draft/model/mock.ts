@@ -2,49 +2,23 @@ import type { SolutionDraft } from "./types";
 
 export const solutionDrafts: SolutionDraft[] = [
   {
-    id: "d1",
-    model: "WN-20",
-    date: "2026.11.04",
-    title: "탈수 중 과열 경고가 뜰 때",
+    id: "d-1",
+    model: "WM-20",
+    title: "탈수가 안 되고 통에 물이 남을 때",
+    system: "배수",
+    symptoms: ["탈수 안 됨", "통에 물 남음", "배수 시 소음"],
     steps: [
-      "세탁물 쏠림 확인 후 다시 넣기",
-      "배수 필터 막힘 확인",
-      "모터 통풍구 먼지 확인",
-      "경고 코드 번호 기록",
+      "전원을 끄고 전면 하단 왼쪽 커버를 열어요.",
+      "받침 그릇을 두고 배수 필터를 왼쪽으로 돌려 빼서 이물질을 없애요.",
+      "배수 호스가 꺾이거나 눌려 있지 않은지 확인해요.",
     ],
-    sources: [
-      { id: "AS-1038", summary: "배수 필터 막힘 → 교체" },
-      { id: "AS-0991", summary: "세탁물 쏠림 → 재배치 안내" },
-      { id: "AS-0954", summary: "통풍구 먼지 → 청소" },
-    ],
-    approved: false,
-  },
-  {
-    id: "d2",
-    model: "DR-35",
-    date: "2026.11.03",
-    title: "건조기가 꺼지고 켜지지 않을 때",
-    steps: [
-      "차단기와 전원 플러그 확인",
-      "린트 필터 청소 후 5분 대기",
-      "도어를 끝까지 닫고 다시 시작",
-    ],
-    sources: [
-      { id: "AS-1031", summary: "온도 센서 접점 마모 → 교체" },
-      { id: "AS-0977", summary: "과열 차단 → 리셋" },
-    ],
-    approved: false,
-  },
-  {
-    id: "d3",
-    model: "WN-20",
-    date: "2026.10.30",
-    title: "배수가 늦을 때",
-    steps: ["배수 필터 꺼내 세척", "배수 호스 꺾임 확인", "펌프 소음이 나면 상담 요청"],
-    sources: [
-      { id: "AS-1038", summary: "필터 막힘 → 교체" },
-      { id: "AS-0912", summary: "호스 꺾임 → 정리" },
-    ],
-    approved: true,
+    fallback: "담당자 호출로 안내해요. 엔지니어는 배수 펌프 임펠러(P-09)를 먼저 점검해요.",
+    evidence: ["AS-1041", "AS-1038", "AS-1029", "AS-1017"],
+    status: "pending",
+    createdAt: "2026.11.05",
   },
 ];
+
+export function findDraftForModel(model: string) {
+  return solutionDrafts.find((draft) => draft.model === model);
+}

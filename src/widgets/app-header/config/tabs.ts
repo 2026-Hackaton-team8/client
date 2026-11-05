@@ -1,7 +1,8 @@
 export type HeaderTab = {
   key: string;
   label: string;
-  href: string;
+  // No href means the screen isn't built yet; the tab renders disabled.
+  href?: string;
 };
 
 export const userTabs: HeaderTab[] = [
@@ -10,7 +11,13 @@ export const userTabs: HeaderTab[] = [
 ];
 
 export const makerTabs: HeaderTab[] = [
-  { key: "requests", label: "A/S 요청 기록", href: "/maker/requests" },
-  { key: "drafts", label: "솔루션 초안", href: "/maker/drafts" },
-  { key: "models", label: "모델링 리스트", href: "/maker/models" },
+  { key: "calls", label: "호출 수신함", href: "/maker/calls" },
+  { key: "records", label: "수리 이력", href: "/maker/records" },
+  { key: "solutions", label: "솔루션 초안", href: "/maker/solutions" },
+  { key: "models", label: "모델 관리" },
 ];
+
+export const headerUsers = {
+  user: "[이용 기업명] · 홍길동",
+  maker: "[설비 제공 업체명] · 김담당",
+};

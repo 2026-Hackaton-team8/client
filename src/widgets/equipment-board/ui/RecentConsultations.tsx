@@ -1,41 +1,37 @@
 import Link from "next/link";
-import type { Consultation } from "@/entities/consultation";
-import { ButtonLink } from "@/shared/ui";
+import { ConsultStatusBadge, consultations } from "@/entities/consultation";
+import { findEquipment } from "@/entities/equipment";
+import { Panel } from "@/shared/ui";
 
-type Props = {
-  items: Consultation[];
-};
-
-export function RecentConsultations({ items }: Props) {
+export function RecentConsultations() {
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-title-lg text-black">최근 수리 상담</h2>
-      <ul className="flex flex-col gap-2 bg-white">
-        {items.map((item, index) => (
-          <li key={item.id} className="flex flex-col gap-2">
-            {index > 0 && <div aria-hidden className="mx-6.25 h-0.5 rounded-lg bg-secondary-100" />}
-            <div className="flex items-center justify-between px-2.5 py-5">
-              <div className="flex flex-col gap-3.75">
-                <p className="text-title-md text-black">{item.equipmentName}</p>
-                <p className="text-body-md text-secondary-600">{item.date}</p>
-              </div>
-              <ButtonLink
-                href={`/equipment/${item.equipmentId}`}
-                variant="ghost"
-                size="sm"
-                aria-label={`${item.equipmentName} ${item.date} 내역 조회`}
+    <aside className="shrink-0 lg:w-85">
+      <Panel tone="plain" title="최근 상담" className="gap-1">
+        <ul className="flex flex-col">
+          {consultations.slice(0, 3).map((consultation) => (
+            <li key={consultation.id} className="border-b border-secondary-100 py-4">
+              <Link
+                href={`/consult/${consultation.id}`}
+                className="group flex flex-col gap-1.5 focus-visible:outline-2 focus-visible:outline-primary-500"
               >
-                내역 조회
-              </ButtonLink>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div className="flex justify-end">
-        <Link href="/consult" className="text-body-md text-secondary-700 hover:text-black">
+                <span className="flex items-center justify-between gap-2">
+                  <span className="text-label-lg text-black group-hover:text-primary-600">
+                    {findEquipment(consultation.equipmentId)?.name}
+                  </span>
+                  <ConsultStatusBadge status={consultation.status} />
+                </span>
+                <span className="text-body-sm text-secondary-700">{consultation.summary}</span>
+                <span className="text-label-md font-normal text-secondary-600">
+                  {consultation.dateLabel}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link href="/consult" className="pt-3 text-body-sm text-secondary-700 hover:text-black">
           더보기
         </Link>
-      </div>
-    </section>
+      </Panel>
+    </aside>
   );
 }

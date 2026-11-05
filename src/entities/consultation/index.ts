@@ -1,2 +1,3 @@
-export { recentConsultations, symptomOptions } from "./model/mock";
-export type { Consultation } from "./model/types";
+export { consultations, findConsultation } from "./model/mock";
+export type { ChatMessage, ConsultStatus, Consultation } from "./model/types";
+export { ConsultStatusBadge, consultStatusLabels } from "./ui/ConsultStatusBadge";

@@ -1,9 +1,14 @@
+export type DraftStatus = "pending" | "approved";
+
 export type SolutionDraft = {
   id: string;
   model: string;
-  date: string;
   title: string;
+  system: string;
+  symptoms: string[];
   steps: string[];
-  sources: { id: string; summary: string }[];
-  approved: boolean;
+  fallback: string;
+  evidence: string[];
+  status: DraftStatus;
+  createdAt: string;
 };

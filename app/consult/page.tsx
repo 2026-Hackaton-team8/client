@@ -1,5 +1,5 @@
-import { ConsultPage } from "@/pages/consult";
+import { ConsultListPage } from "@/pages/consult-list";
 
 export default function Page() {
-  return <ConsultPage />;
+  return <ConsultListPage />;
 }
