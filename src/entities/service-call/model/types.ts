@@ -1,5 +1,11 @@
 export type CallUrgency = "high" | "mid" | "low";
-export type CallStatus = "new" | "assigned" | "done" | "self";
+// "visited": the engineer's visit date has passed, so the repair record is due.
+export type CallStatus = "new" | "assigned" | "visited" | "done" | "self";
+
+export type Visit = {
+  engineer: string;
+  date: string;
+};
 
 export type SuspectPart = {
   code: string;
@@ -29,6 +35,7 @@ export type ServiceCall = {
   };
   nextCheck: string;
   suspectParts: SuspectPart[];
+  visit?: Visit;
   // Mock: Unity part highlighted in the 3D view.
   unityPart: string;
 };

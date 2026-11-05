@@ -94,7 +94,7 @@ export function LoginForm() {
       </div>
       <p className="flex justify-center gap-1.5 text-body-md text-secondary-700">
         아직 계정이 없으신가요?
-        <Link href="#" className="text-label-lg text-primary-500 hover:text-primary-600">
+        <Link href="/signup" className="text-label-lg text-primary-500 hover:text-primary-600">
           회원가입
         </Link>
       </p>
