@@ -9,12 +9,15 @@ export function EquipmentBoard() {
   const { data: equipments, error, loading } = useApi(equipmentApi.list, "equipments");
 
   return (
-    <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
-      <section className="flex min-w-0 flex-1 flex-col gap-6">
+    <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+      <section className="flex min-w-0 flex-1 flex-col gap-11.5 lg:max-w-200">
         <PageHeading
           title="내 설비"
-          description="고장이 나면 설비를 골라 상담을 시작하세요."
-          action={<ButtonLink href="/equipment/new">+ 설비 등록</ButtonLink>}
+          action={
+            <ButtonLink href="/equipment/new" variant="strong">
+              + 설비 등록
+            </ButtonLink>
+          }
         />
         {loading || error ? (
           <LoadState error={error} />
@@ -33,6 +36,7 @@ export function EquipmentBoard() {
                       <ButtonLink
                         href={`/consult/new?equipment=${equipment.id}`}
                         size="sm"
+                        variant="outline"
                         block
                         className="flex-1"
                       >
@@ -41,7 +45,7 @@ export function EquipmentBoard() {
                       <ButtonLink
                         href={`/equipment/${equipment.id}/history`}
                         size="sm"
-                        variant="ghost"
+                        variant="subtle"
                         block
                         className="flex-1"
                       >

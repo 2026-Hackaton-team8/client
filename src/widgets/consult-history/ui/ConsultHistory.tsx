@@ -22,7 +22,6 @@ export function ConsultHistory() {
     <>
       <PageHeading
         title="호출 내역"
-        description="담당자를 호출한 건이에요. 항목을 누르면 진행 상황을 볼 수 있어요."
         action={
           <div role="group" aria-label="상태 필터" className="flex flex-wrap gap-2">
             {filters.map((item) => (

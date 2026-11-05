@@ -166,7 +166,7 @@ function Message({ message, isLast, consultation, reportHref, onOption, onResolv
 
   if (message.sender === "AI" && message.type === "SOLUTION") {
     return (
-      <div className="flex flex-col gap-2.5 rounded-lg border-2 border-primary-300 bg-white p-4">
+      <div className="flex flex-col gap-2.5 rounded-lg border border-secondary-100 bg-white p-4">
         <h3 className="text-title-md text-black">{message.content}</h3>
         {!!payload?.steps?.length && (
           <ol className="flex list-inside list-decimal flex-col gap-1 text-body-md text-black">
@@ -189,7 +189,7 @@ function Message({ message, isLast, consultation, reportHref, onOption, onResolv
                 해결됐어요
               </Button>
             )}
-            <ButtonLink href={reportHref} variant="ghost" className="flex-1">
+            <ButtonLink href={reportHref} variant="subtle" className="flex-1">
               해결 안 됨 · 담당자 호출
             </ButtonLink>
           </div>
@@ -200,7 +200,7 @@ function Message({ message, isLast, consultation, reportHref, onOption, onResolv
 
   if (message.sender === "AI" && message.type === "ESCALATE") {
     return (
-      <div className="flex flex-col gap-2.5 rounded-lg border-2 border-primary-300 bg-white p-4">
+      <div className="flex flex-col gap-2.5 rounded-lg border border-secondary-100 bg-white p-4">
         {payload?.reason && <Badge tone="primary">{callReasonLabels[payload.reason]}</Badge>}
         <p className="text-body-md text-black">{message.content}</p>
         {canCall && (

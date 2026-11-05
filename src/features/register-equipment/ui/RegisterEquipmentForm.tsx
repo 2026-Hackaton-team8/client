@@ -54,7 +54,7 @@ export function RegisterEquipmentForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-23">
       <form onSubmit={handleSubmit} className="min-w-0 flex-1">
         <Panel tone="plain" className="gap-6">
           <div className="flex flex-col gap-2">
@@ -144,7 +144,7 @@ export function RegisterEquipmentForm() {
             <ButtonLink href="/" variant="ghost">
               취소
             </ButtonLink>
-            <Button type="submit" disabled={!selectedId || pending}>
+            <Button type="submit" variant="strong" disabled={!selectedId || pending}>
               {pending ? "등록하는 중…" : "등록"}
             </Button>
           </div>
@@ -174,9 +174,9 @@ export function RegisterEquipmentForm() {
                   ["부품", `${model.partCount}개`],
                   ["수리 이력", `같은 모델 ${model.repairHistoryCount}건`],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex">
+                  <div key={label} className="flex justify-between gap-3">
                     <dt className="w-22 shrink-0 text-secondary-600">{label}</dt>
-                    <dd className="text-black">{value}</dd>
+                    <dd className="text-right text-black">{value}</dd>
                   </div>
                 ))}
               </dl>

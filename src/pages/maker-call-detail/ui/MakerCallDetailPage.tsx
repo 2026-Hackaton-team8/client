@@ -112,7 +112,9 @@ function CallDetail({ call, onChange }: CallDetailProps) {
               </Button>
             )}
             {visitDue && (
-              <ButtonLink href={`/maker/records/new?call=${call.id}`}>수리 기록 작성</ButtonLink>
+              <ButtonLink href={`/maker/records/new?call=${call.id}`} variant="soft">
+                수리 기록 작성
+              </ButtonLink>
             )}
           </div>
         }

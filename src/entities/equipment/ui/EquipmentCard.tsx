@@ -14,14 +14,14 @@ export function EquipmentCard({ equipment, actions }: Props) {
   ];
 
   return (
-    <article className="flex h-full flex-col gap-4 rounded-lg bg-secondary-50 p-5">
+    <article className="flex h-full flex-col gap-6 rounded border border-secondary-100 bg-white p-5">
       <div className="flex flex-1 flex-col gap-3">
-        <h3 className="text-title-md text-black">{equipment.name}</h3>
+        <h3 className="text-title-lg text-black">{equipment.name}</h3>
         <dl className="flex flex-col gap-1.5 text-label-md font-normal">
           {specs.map(([label, value]) => (
-            <div key={label} className="flex">
+            <div key={label} className="flex justify-between gap-3">
               <dt className="w-16 shrink-0 text-secondary-600">{label}</dt>
-              <dd className="text-black">{value}</dd>
+              <dd className="text-right text-black">{value}</dd>
             </div>
           ))}
         </dl>

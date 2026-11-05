@@ -11,24 +11,22 @@ export function RecentRequests() {
 
   return (
     <aside className="shrink-0 lg:w-85">
-      <Panel tone="plain" title="최근 호출" className="gap-1">
+      <Panel tone="plain" title="최근 호출" className="gap-4.5">
         {loading || error ? (
           <LoadState error={error} />
         ) : requests?.length === 0 ? (
           <p className="py-4 text-body-sm text-secondary-600">아직 담당자를 호출한 적이 없어요.</p>
         ) : (
-          <ul className="flex flex-col">
+          <ul className="flex flex-col gap-1">
             {requests?.slice(0, 5).map((request) => (
-              <li key={request.id} className="border-b border-secondary-100 py-4">
+              <li key={request.id}>
                 <Link
                   href={`/requests/${request.id}`}
-                  className="group flex flex-col gap-1.5 focus-visible:outline-2 focus-visible:outline-primary-500"
+                  className={`flex flex-col gap-1.5 rounded p-2.5 hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-primary-500 ${request.status === "RECEIVED" ? "bg-primary-50" : ""}`}
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="text-label-lg text-black group-hover:text-primary-600">
-                      {request.equipmentName}
-                    </span>
-                    <Badge tone={request.status === "RECEIVED" ? "accent" : "neutral"}>
+                    <span className="text-label-lg text-black">{request.equipmentName}</span>
+                    <Badge tone={request.status === "RECEIVED" ? "strong" : "neutral"}>
                       {requestStatusLabels[request.status]}
                     </Badge>
                   </span>
@@ -41,7 +39,7 @@ export function RecentRequests() {
             ))}
           </ul>
         )}
-        <Link href="/consult" className="pt-3 text-body-sm text-secondary-700 hover:text-black">
+        <Link href="/consult" className="px-2.5 text-body-sm text-secondary-700 hover:text-black">
           더보기
         </Link>
       </Panel>

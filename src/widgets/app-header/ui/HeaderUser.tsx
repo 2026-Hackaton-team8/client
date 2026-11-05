@@ -36,7 +36,7 @@ export function HeaderUser({ side }: Props) {
       <button
         type="button"
         onClick={logout}
-        className="cursor-pointer rounded-md border border-secondary-300 px-2 py-1 text-label-md whitespace-nowrap text-secondary-700 hover:border-secondary-500 hover:text-black"
+        className="cursor-pointer rounded border border-secondary-300 px-2 py-1 text-label-md whitespace-nowrap text-secondary-700 hover:border-secondary-500 hover:text-black"
       >
         로그아웃
       </button>
