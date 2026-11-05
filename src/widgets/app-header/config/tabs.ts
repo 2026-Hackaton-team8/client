@@ -14,7 +14,7 @@ export const makerTabs: HeaderTab[] = [
   { key: "calls", label: "호출 수신함", href: "/maker/calls" },
   { key: "records", label: "수리 이력", href: "/maker/records" },
   { key: "solutions", label: "솔루션 초안", href: "/maker/solutions" },
-  { key: "models", label: "모델 관리" },
+  { key: "models", label: "모델 관리", href: "/maker/models" },
 ];
 
 export const headerUsers = {

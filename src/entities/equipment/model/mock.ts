@@ -3,7 +3,7 @@ import type { Equipment } from "./types";
 export const equipments: Equipment[] = [
   {
     id: "eq-1",
-    unityIndex: 0,
+    unityCode: "ROBOT-001",
     name: "1층 세탁실 1호기",
     model: "WM-20",
     place: "본관 1층",
@@ -12,7 +12,7 @@ export const equipments: Equipment[] = [
   },
   {
     id: "eq-2",
-    unityIndex: 1,
+    unityCode: "CNC-001",
     name: "1층 세탁실 2호기",
     model: "WM-20",
     place: "본관 1층",
@@ -21,7 +21,7 @@ export const equipments: Equipment[] = [
   },
   {
     id: "eq-3",
-    unityIndex: 2,
+    unityCode: "PUMP-001",
     name: "세탁 2라인",
     model: "WM-35",
     place: "B동 2층",
@@ -30,7 +30,7 @@ export const equipments: Equipment[] = [
   },
   {
     id: "eq-4",
-    unityIndex: 3,
+    unityCode: "COMPRESSOR-001",
     name: "B동 3호기",
     model: "WM-20",
     place: "B동 3층",
@@ -39,7 +39,7 @@ export const equipments: Equipment[] = [
   },
   {
     id: "eq-5",
-    unityIndex: 4,
+    unityCode: "ROBOT-001",
     name: "2층 탈수기",
     model: "WM-35",
     place: "본관 2층",
@@ -48,7 +48,7 @@ export const equipments: Equipment[] = [
   },
   {
     id: "eq-6",
-    unityIndex: 5,
+    unityCode: "CNC-001",
     name: "대형 건조기",
     model: "DR-50",
     place: "B동 1층",

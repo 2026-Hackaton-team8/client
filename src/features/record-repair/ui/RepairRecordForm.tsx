@@ -18,7 +18,7 @@ type Props = {
   model: string;
   parts: ModelPart[];
   defaultPart: string;
-  unityIndex?: number;
+  equipmentCode?: string;
 };
 
 const causes = ["이물질 걸림", "마모", "체결 불량", "전기적 결함", "기타"].map((label) => ({
@@ -31,7 +31,7 @@ const levels = [
   { value: "engineer", label: "엔지니어 작업 필요" },
 ];
 
-export function RepairRecordForm({ callId, model, parts, defaultPart, unityIndex }: Props) {
+export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentCode }: Props) {
   const [partCode, setPartCode] = useState(defaultPart);
   const [level, setLevel] = useState("engineer");
   const [saved, setSaved] = useState(false);
@@ -54,7 +54,12 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, unityIndex
         }
         className="shrink-0 gap-4 lg:w-110"
       >
-        <UnityViewer label={`${model} 3D 모델`} modelIndex={unityIndex} className="h-90" />
+        <UnityViewer
+          label={`${model} 3D 모델`}
+          equipmentCode={equipmentCode}
+          partCode={partCode}
+          className="h-90"
+        />
         <ul aria-label="부품 목록" className="flex flex-col gap-1">
           {parts.map((item) => {
             const selected = item.code === partCode;
@@ -69,9 +74,9 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, unityIndex
                   }`}
                 >
                   <span
-                    className={`w-11 text-label-md ${selected ? "text-primary-500" : "text-secondary-600"}`}
+                    className={`w-28 shrink-0 truncate text-label-md ${selected ? "text-primary-500" : "text-secondary-600"}`}
                   >
-                    {item.code}
+                    {item.code.split(":").pop()}
                   </span>
                   <span className={`text-body-md text-black ${selected ? "font-semibold" : ""}`}>
                     {item.name}

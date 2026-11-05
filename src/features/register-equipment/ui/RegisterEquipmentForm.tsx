@@ -85,7 +85,7 @@ export function RegisterEquipmentForm() {
             <>
               <UnityViewer
                 label={`${selected.code} 3D 미리보기`}
-                modelIndex={selected.unityIndex}
+                equipmentCode={selected.unityCode}
                 className="h-80"
               />
               <p className="text-center text-label-md font-normal text-secondary-600">

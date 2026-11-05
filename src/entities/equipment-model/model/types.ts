@@ -14,7 +14,7 @@ export type EquipmentModel = {
   pendingDrafts: number;
   lastRepair: string;
   partCount: number;
-  // Index passed to Unity SelectModelByIndex (build ships 0–6).
-  unityIndex: number;
+  // Mock: Unity equipment code used for this model's 3D preview.
+  unityCode: string;
   parts: ModelPart[];
 };

@@ -2,7 +2,7 @@ import type { UnityConfig } from "react-unity-webgl";
 
 // Unity WebGL build copied into public/unity/Build. Replace these files when a new build is exported.
 const buildUrl = "/unity/Build";
-const buildName = "12312312313";
+const buildName = "2345690";
 
 export const unityBuild: UnityConfig = {
   loaderUrl: `${buildUrl}/${buildName}.loader.js`,
@@ -14,10 +14,10 @@ export const unityBuild: UnityConfig = {
   productName: "SWHack",
 };
 
-// Web → Unity bridge. Browser SendMessage can only pass a string or float, so the scene needs a
-// GameObject named `objectName` with `public void SelectModelFromWeb(string index)` that calls
-// SelectModelByIndex(int.Parse(index)). The build ships models 0–6.
-export const unityModelSelector = {
-  objectName: "WebBridge",
-  method: "SelectModelFromWeb",
+// Web ↔ Unity bridge. SendMessage targets the GameObject name, not the UnityWebBridge component, so
+// this must match the scene object exactly (typo included) until it's renamed in Unity.
+export const unityBridge = {
+  objectName: "==== UNITY WEB BRIGE ====",
+  setEquipment: "SetEquipment",
+  selectPart: "SelectPart",
 };

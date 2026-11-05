@@ -29,4 +29,6 @@ export type ServiceCall = {
   };
   nextCheck: string;
   suspectParts: SuspectPart[];
+  // Mock: Unity part highlighted in the 3D view.
+  unityPart: string;
 };

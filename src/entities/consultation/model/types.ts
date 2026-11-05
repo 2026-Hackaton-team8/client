@@ -33,5 +33,7 @@ export type Consultation = {
     code: string;
     name: string;
     location: string;
+    // Mock: Unity part highlighted for this suspect.
+    unityPart: string;
   };
 };

@@ -5,6 +5,6 @@ export type Equipment = {
   place: string;
   serial: string;
   lastService: string;
-  // Mock: Unity SelectModelByIndex number (0–6) shown for this equipment.
-  unityIndex: number;
+  // Mock: Unity equipment code (ROBOT-001, CNC-001, PUMP-001, COMPRESSOR-001) shown for this equipment.
+  unityCode: string;
 };
