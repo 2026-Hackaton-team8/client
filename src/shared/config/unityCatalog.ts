@@ -65,3 +65,32 @@ export const unityCatalog: UnityEquipment[] = [
 export function unityPartsFor(equipmentCode?: string) {
   return unityCatalog.find((item) => item.equipmentCode === equipmentCode)?.parts ?? [];
 }
+
+// Words that point a model at one of the Unity equipments, checked against its file key, code,
+// name and category in that order.
+const unityKeywords: Record<string, string[]> = {
+  "ROBOT-001": ["robot", "로봇"],
+  "CNC-001": ["cnc", "가공"],
+  "PUMP-001": ["pump", "펌프"],
+  "COMPRESSOR-001": ["compressor", "컴프레서", "압축"],
+};
+
+type ModelLike = { modelFileKey?: string; code?: string; name?: string; category?: string };
+
+// The API's modelFileKey isn't guaranteed to be a Unity equipment code, so match it, or failing
+// that the model's own text, to the equipments this build ships. Undefined means no 3D model.
+export function unityCodeFor(model?: ModelLike) {
+  if (!model) return undefined;
+  const fields = [model.modelFileKey, model.code, model.name, model.category]
+    .filter((value): value is string => !!value)
+    .map((value) => value.toLowerCase());
+  for (const field of fields) {
+    const exact = unityCatalog.find((item) => item.equipmentCode.toLowerCase() === field);
+    if (exact) return exact.equipmentCode;
+    const match = Object.entries(unityKeywords).find(([, words]) =>
+      words.some((word) => field.includes(word)),
+    );
+    if (match) return match[0];
+  }
+  return undefined;
+}

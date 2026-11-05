@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { equipmentApi, errorMessage, modelApi, useApi } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
 import { Button, ButtonLink, LoadState, Panel, TextField, UnityViewer } from "@/shared/ui";
 
 export function RegisterEquipmentForm() {
@@ -159,7 +160,7 @@ export function RegisterEquipmentForm() {
             <>
               <UnityViewer
                 label={`${model.code} 3D 미리보기`}
-                equipmentCode={model.modelFileKey}
+                equipmentCode={unityCodeFor(model)}
                 className="h-80"
               />
               <p className="text-center text-label-md font-normal text-secondary-600">

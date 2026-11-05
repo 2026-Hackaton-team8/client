@@ -76,6 +76,19 @@ export function UnityViewer({ label, equipmentCode, partCode, className, childre
     containerRef.current?.requestFullscreen().catch(() => setIsExpanded(true));
   }
 
+  // No Unity equipment for this model: say so instead of an empty 3D scene.
+  if (!equipmentCode) {
+    return (
+      <div
+        role="img"
+        aria-label={label}
+        className={`flex items-center justify-center rounded-lg bg-secondary-100 p-6 text-center ${className ?? ""}`}
+      >
+        <p className="text-body-md text-secondary-700">이 모델은 3D 미리보기가 없어요.</p>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}

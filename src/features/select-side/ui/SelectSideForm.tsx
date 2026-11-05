@@ -34,7 +34,7 @@ const options: { value: Side; title: string; caption: string; features: string[]
     value: "maker",
     title: "제작 업체",
     caption: "설비를 만들고 A/S를 제공하는 업체",
-    features: ["들어온 호출 확인과 담당자 배정", "수리 이력 기록", "모델별 매뉴얼 · 솔루션 관리"],
+    features: ["들어온 호출 확인과 담당자 배정", "수리 이력 기록", "모델별 3D · 매뉴얼 관리"],
   },
 ];
 

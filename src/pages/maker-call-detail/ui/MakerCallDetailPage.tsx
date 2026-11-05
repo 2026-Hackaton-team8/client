@@ -11,6 +11,7 @@ import {
 } from "@/entities/service-call";
 import { AssignEngineerForm } from "@/features/assign-engineer";
 import { errorMessage, makerApi, modelApi, useApi, type RequestDetailResponse } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
 import { formatDateTime, formatMonthDay, toDotDate } from "@/shared/lib";
 import {
   Badge,
@@ -172,7 +173,7 @@ function CallDetail({ call, onChange }: CallDetailProps) {
           <Panel title="설비 위치" className="gap-3">
             <UnityViewer
               label={`${call.equipment.modelCode} 3D 모델`}
-              equipmentCode={model.data?.modelFileKey}
+              equipmentCode={unityCodeFor(model.data)}
               className="h-80"
             />
             <dl className="flex flex-col gap-1.5 text-body-sm">

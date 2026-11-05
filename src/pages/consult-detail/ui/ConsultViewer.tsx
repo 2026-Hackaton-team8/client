@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import type { Consultation } from "@/entities/consultation";
 import type { Equipment } from "@/entities/equipment";
 import { equipmentApi, useApi } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
 import { LoadState } from "@/shared/ui";
 import { ModelViewer } from "@/widgets/model-viewer";
 
@@ -36,7 +37,7 @@ export function ConsultViewer({ fallback, suspect }: Props) {
     <ModelViewer
       name={equipment.name}
       details={`${equipment.model.code} · ${equipment.location}`}
-      equipmentCode={equipment.model.modelFileKey}
+      equipmentCode={unityCodeFor(equipment.model)}
       suspect={suspect}
     />
   );

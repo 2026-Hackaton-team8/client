@@ -2,6 +2,7 @@
 
 import { loadManual, sectionTypeLabels } from "@/entities/model-manual";
 import { modelApi, useApi } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
 import {
   Badge,
   ButtonLink,
@@ -61,7 +62,7 @@ export function MakerModelDetailPage({ modelId }: Props) {
           <Panel tone="plain" title="3D 모델" className="min-w-0 flex-1 gap-4">
             <UnityViewer
               label={`${model.data.code} 3D 모델`}
-              equipmentCode={model.data.modelFileKey}
+              equipmentCode={unityCodeFor(model.data)}
               className="h-120"
             />
           </Panel>

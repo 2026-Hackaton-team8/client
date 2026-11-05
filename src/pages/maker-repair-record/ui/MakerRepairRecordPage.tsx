@@ -2,6 +2,7 @@
 
 import { RepairRecordForm } from "@/features/record-repair";
 import { makerApi, modelApi, useApi } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
 import { LoadState, PageHeading, PageMain } from "@/shared/ui";
 import { AppHeader } from "@/widgets/app-header";
 
@@ -36,7 +37,7 @@ export function MakerRepairRecordPage({ requestId }: Props) {
               requestId={requestId}
               model={page.data.model.code}
               parts={page.data.parts}
-              equipmentCode={page.data.model.modelFileKey}
+              equipmentCode={unityCodeFor(page.data.model)}
             />
           </>
         )}
