@@ -3,11 +3,15 @@ import { clearSession, getSession, updateSession } from "./session";
 import type { RefreshResponse } from "./types";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-if (!baseURL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL is not set. Add it to client/.env.");
-}
 
 export const API_BASE_URL = baseURL;
+
+// Checked when a request goes out, not at import: pages are prerendered at build time and
+// must not fail just because the build machine has no API address.
+function requireBaseURL() {
+  if (!baseURL) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set. Add it to client/.env.");
+  return baseURL;
+}
 
 // Every response is wrapped as { status, code, message, data }.
 type Envelope<T> = { status: string; code: number; message: string; data: T };
@@ -26,9 +30,10 @@ export class ApiError extends Error {
 // (Not `auth`: axios already uses that name for basic auth.)
 type Config = InternalAxiosRequestConfig & { skipAuth?: boolean; retried?: boolean };
 
-const http = axios.create({ baseURL });
+const http = axios.create();
 
 http.interceptors.request.use((config: Config) => {
+  config.baseURL = requireBaseURL();
   const token = config.skipAuth ? undefined : getSession()?.accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
@@ -45,7 +50,7 @@ function refreshTokens() {
       const { data } = await axios.post<Envelope<RefreshResponse>>(
         "/api/auth/refresh",
         { refreshToken },
-        { baseURL },
+        { baseURL: requireBaseURL() },
       );
       updateSession(data.data);
       return true;
