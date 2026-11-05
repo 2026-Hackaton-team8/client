@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { findEquipment } from "@/entities/equipment";
 import { recordsForModel } from "@/entities/repair-record";
-import { UrgencyBadge, type ServiceCall } from "@/entities/service-call";
+import { UrgencyBadge, type ServiceCall, type Visit } from "@/entities/service-call";
 import { AssignEngineerForm } from "@/features/assign-engineer";
 import { formatMonthDay } from "@/shared/lib";
 import { Badge, Button, ButtonLink, PageHeading, PageMain, Panel, UnityViewer } from "@/shared/ui";
@@ -37,7 +37,9 @@ export function MakerCallDetailPage({ call }: Props) {
           action={
             <div className="flex gap-2">
               <Button variant="ghost">신고서 PDF</Button>
-              <ButtonLink href={`/maker/records?call=${call.id}`}>수리 이력 기록</ButtonLink>
+              {call.status === "visited" && (
+                <ButtonLink href={`/maker/records/new?call=${call.id}`}>수리 기록 작성</ButtonLink>
+              )}
             </div>
           }
         />
@@ -128,10 +130,57 @@ export function MakerCallDetailPage({ call }: Props) {
                 ))}
               </ul>
             </Panel>
-            <AssignEngineerForm />
+            {call.status === "new" && <AssignEngineerForm />}
+            {call.visit && (call.status === "assigned" || call.status === "visited") && (
+              <VisitPanel callId={call.id} visit={call.visit} visited={call.status === "visited"} />
+            )}
           </aside>
         </div>
       </PageMain>
     </>
+  );
+}
+
+type VisitPanelProps = {
+  callId: string;
+  visit: Visit;
+  visited: boolean;
+};
+
+// The repair record only opens once the visit date has passed.
+function VisitPanel({ callId, visit, visited }: VisitPanelProps) {
+  return (
+    <Panel
+      title="엔지니어 방문"
+      titleAddon={
+        <Badge tone={visited ? "strong" : "primary"}>{visited ? "기록 대기" : "방문 예정"}</Badge>
+      }
+      className="gap-4"
+    >
+      <dl className="flex flex-col gap-2.5 text-body-md">
+        <div className="flex">
+          <dt className="w-20 shrink-0 text-secondary-600">엔지니어</dt>
+          <dd className="text-black">{visit.engineer}</dd>
+        </div>
+        <div className="flex">
+          <dt className="w-20 shrink-0 text-secondary-600">방문 일정</dt>
+          <dd className="text-black">{visit.date}</dd>
+        </div>
+      </dl>
+      {visited ? (
+        <>
+          <p className="text-body-sm text-secondary-700">
+            방문이 끝났어요. 수리 결과를 기록해 주세요.
+          </p>
+          <ButtonLink href={`/maker/records/new?call=${callId}`} block>
+            수리 기록 작성
+          </ButtonLink>
+        </>
+      ) : (
+        <p className="text-body-sm text-secondary-700">
+          방문일이 지나면 수리 기록을 작성할 수 있어요.
+        </p>
+      )}
+    </Panel>
   );
 }

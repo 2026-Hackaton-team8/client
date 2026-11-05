@@ -29,7 +29,8 @@ export function AssignEngineerForm() {
         />
         {assigned ? (
           <p role="status" className="rounded-lg bg-white px-4 py-3 text-label-lg text-primary-600">
-            배정했어요. 이용 기업에 방문 일정을 알렸어요.
+            배정했어요. 이용 기업에 방문 일정을 알렸고, 방문일이 지나면 수리 기록을 작성할 수
+            있어요.
           </p>
         ) : (
           <Button type="submit" block>

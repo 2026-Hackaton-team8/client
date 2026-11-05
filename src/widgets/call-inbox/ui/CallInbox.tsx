@@ -8,6 +8,7 @@ import { Chip, PageHeading } from "@/shared/ui";
 const filters: { status: CallStatus; label: string }[] = [
   { status: "new", label: "새 호출" },
   { status: "assigned", label: "엔지니어 배정됨" },
+  { status: "visited", label: "기록 대기" },
   { status: "done", label: "수리 완료" },
   { status: "self", label: "자가 해결" },
 ];

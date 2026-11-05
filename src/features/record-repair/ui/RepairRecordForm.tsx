@@ -126,6 +126,9 @@ export function RepairRecordForm({ callId, model, parts, defaultPart, equipmentC
             <div role="status" className="flex items-center justify-end gap-3">
               <Badge tone="primary">수리 완료</Badge>
               <span className="text-label-lg text-black">수리 이력을 저장했어요.</span>
+              <ButtonLink href="/maker/records" variant="ghost">
+                수리 이력 보기
+              </ButtonLink>
             </div>
           ) : (
             <div className="flex justify-end gap-2">
