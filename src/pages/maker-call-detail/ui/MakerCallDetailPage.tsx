@@ -55,6 +55,15 @@ function CallDetail({ call, onChange }: CallDetailProps) {
   const modelId = call.equipment.modelId;
   const model = useApi(() => modelApi.get(modelId), `model:${modelId}`);
   const histories = useApi(() => makerApi.modelHistories(modelId), `histories:${modelId}`);
+  // Mesh names come from the parts list; repair records only carry the part id and code.
+  const parts = useApi(() => modelApi.parts(modelId), `parts:${modelId}`);
+  const repaired = histories.data?.find((record) => record.requestId === call.id)?.part;
+  // A record picked in the history list takes over from this call's own repaired part.
+  const [focusedId, setFocusedId] = useState<number>();
+  const focused = histories.data?.find((record) => record.part.id === focusedId)?.part ?? repaired;
+  const focusedMesh = focused
+    ? (parts.data?.find((part) => part.id === focused.id)?.meshName ?? focused.code)
+    : undefined;
   const [error, setError] = useState("");
   const [showConversation, setShowConversation] = useState(false);
   const visitDue = isVisitDue(call);
@@ -182,25 +191,31 @@ function CallDetail({ call, onChange }: CallDetailProps) {
             ) : (
               <ul>
                 {histories.data?.slice(0, 3).map((record) => (
-                  <li
-                    key={record.id}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-secondary-100 py-3.5 text-body-md"
-                  >
-                    <span className="w-20 text-secondary-600">
-                      {formatMonthDay(toDotDate(record.repairedAt))}
-                    </span>
-                    <span className="w-35 font-semibold text-black">
-                      {record.part.name} {record.part.code}
-                    </span>
-                    <span className="min-w-0 flex-1 text-black">
-                      {record.cause} → {record.solution}
-                    </span>
-                    <RepairLevelBadge level={repairLevelOf(record.difficulty)} />
-                    {record.equipment.id === call.equipment.id ? (
-                      <Badge tone="primary">이 설비</Badge>
-                    ) : (
-                      <Badge tone="neutral">다른 이용 기업</Badge>
-                    )}
+                  <li key={record.id} className="border-b border-secondary-100">
+                    <button
+                      type="button"
+                      aria-pressed={focused?.id === record.part.id}
+                      onClick={() => setFocusedId(record.part.id)}
+                      className={`flex w-full cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 px-2 py-3.5 text-left text-body-md ${
+                        focused?.id === record.part.id ? "bg-primary-50" : "hover:bg-primary-50"
+                      }`}
+                    >
+                      <span className="w-20 text-secondary-600">
+                        {formatMonthDay(toDotDate(record.repairedAt))}
+                      </span>
+                      <span className="w-35 font-semibold text-black">
+                        {record.part.name} {record.part.code}
+                      </span>
+                      <span className="min-w-0 flex-1 text-black">
+                        {record.cause} → {record.solution}
+                      </span>
+                      <RepairLevelBadge level={repairLevelOf(record.difficulty)} />
+                      {record.equipment.id === call.equipment.id ? (
+                        <Badge tone="primary">이 설비</Badge>
+                      ) : (
+                        <Badge tone="neutral">다른 이용 기업</Badge>
+                      )}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -216,8 +231,20 @@ function CallDetail({ call, onChange }: CallDetailProps) {
             <UnityViewer
               label={`${call.equipment.modelCode} 3D 모델`}
               equipmentCode={unityCodeFor(model.data)}
+              partCode={focusedMesh}
               className="h-80"
-            />
+            >
+              {focused && (
+                <div className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded-lg border-2 border-primary-300 bg-white px-3 py-2">
+                  <span className="text-label-md text-primary-500">
+                    {focused.id === repaired?.id ? "수리한 부품" : "선택한 부품"}
+                  </span>
+                  <span className="text-label-lg text-black">
+                    {focused.name} · {focused.code}
+                  </span>
+                </div>
+              )}
+            </UnityViewer>
             <dl className="flex flex-col gap-1.5 text-body-sm">
               {[
                 ["위치", call.equipment.location],
