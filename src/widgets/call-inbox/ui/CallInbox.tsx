@@ -54,7 +54,7 @@ export function CallInbox() {
               rows.map((call) => (
                 <tr
                   key={call.id}
-                  className={`border-b border-secondary-100 last:border-b-0 ${call.urgency === "HIGH" ? "bg-primary-50" : ""}`}
+                  className="border-b border-secondary-100 last:border-b-0 hover:bg-primary-50"
                 >
                   <td className="px-6 py-4">
                     <UrgencyBadge urgency={call.urgency} />

@@ -45,7 +45,10 @@ export function EquipmentHistoryPage({ equipmentId }: Props) {
             </thead>
             <tbody>
               {rows.map((record) => (
-                <tr key={record.id} className="border-b border-secondary-100 last:border-b-0">
+                <tr
+                  key={record.id}
+                  className="border-b border-secondary-100 last:border-b-0 hover:bg-primary-50"
+                >
                   <td className="px-6 py-4 text-body-sm whitespace-nowrap text-secondary-600">
                     {toDotDate(record.repairedAt)}
                   </td>

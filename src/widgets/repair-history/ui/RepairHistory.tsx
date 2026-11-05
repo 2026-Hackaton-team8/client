@@ -129,7 +129,10 @@ export function RepairHistory() {
           </thead>
           <tbody>
             {rows.map((record) => (
-              <tr key={record.id} className="border-b border-secondary-100 last:border-b-0">
+              <tr
+                key={record.id}
+                className="border-b border-secondary-100 last:border-b-0 hover:bg-primary-50"
+              >
                 <td className={`${cell} text-label-lg text-black`}>{record.requestNo}</td>
                 <td className={`${cell} text-body-sm whitespace-nowrap text-secondary-600`}>
                   {toDotDate(record.repairedAt)}

@@ -58,7 +58,10 @@ export function ModelList() {
           </thead>
           <tbody>
             {rows.map((model) => (
-              <tr key={model.id} className="border-b border-secondary-100 last:border-b-0">
+              <tr
+                key={model.id}
+                className="border-b border-secondary-100 last:border-b-0 hover:bg-primary-50"
+              >
                 <td className="px-6 py-3.5">
                   <p className="text-title-md text-black">{model.code}</p>
                   <p className="text-body-sm text-secondary-600">{model.name}</p>

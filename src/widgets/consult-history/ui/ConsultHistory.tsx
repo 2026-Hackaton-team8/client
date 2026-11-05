@@ -59,7 +59,7 @@ export function ConsultHistory() {
               rows.map((request) => (
                 <tr
                   key={request.id}
-                  className="relative border-b border-secondary-100 last:border-b-0 hover:bg-secondary-50"
+                  className="relative border-b border-secondary-100 last:border-b-0 hover:bg-primary-50"
                 >
                   <td className="px-6 py-4.5">
                     <p className="text-title-md text-black">{request.equipmentName}</p>
