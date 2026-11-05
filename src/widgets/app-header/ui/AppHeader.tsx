@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge } from "@/shared/ui";
+import { Badge, Logo } from "@/shared/ui";
 import { headerUsers, makerTabs, userTabs } from "../config/tabs";
 
 type Props = {
@@ -21,11 +21,7 @@ export function AppHeader({ side, active }: Props) {
   return (
     <header className="bg-secondary-50">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-10 overflow-x-auto px-6 md:px-10">
-        <Link
-          href={tabs[0].href ?? "/"}
-          aria-label="짚어 홈"
-          className="h-6 w-24 shrink-0 bg-primary-100"
-        />
+        <Logo href={tabs[0].href ?? "/"} />
         <nav aria-label="주 메뉴" className="flex h-full gap-8">
           {tabs.map((tab) => {
             const isActive = tab.key === active;
