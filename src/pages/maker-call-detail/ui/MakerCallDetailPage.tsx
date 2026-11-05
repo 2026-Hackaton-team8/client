@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AttachmentList } from "@/entities/attachment";
 import { RepairLevelBadge, repairLevelOf } from "@/entities/repair-record";
 import {
   callReasonLabels,
@@ -152,30 +153,7 @@ function CallDetail({ call, onChange }: CallDetailProps) {
             <p className="rounded-lg border-2 border-primary-300 bg-white px-4 py-3 text-body-md whitespace-pre-line text-black">
               {call.symptomDetail}
             </p>
-            {!!call.attachments?.length && (
-              <ul aria-label="첨부" className="flex flex-wrap gap-3">
-                {call.attachments.map((file) => (
-                  <li key={file.fileKey}>
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block size-24 overflow-hidden rounded-lg bg-secondary-100"
-                    >
-                      {file.contentType.startsWith("image/") ? (
-                        // Uploaded files live on the API's storage, outside next/image's configured hosts.
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={file.url} alt="첨부 사진" className="size-full object-cover" />
-                      ) : (
-                        <span className="flex size-full items-center justify-center text-label-md text-secondary-700">
-                          영상
-                        </span>
-                      )}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {!!call.attachments?.length && <AttachmentList attachments={call.attachments} />}
             {showConversation && <Conversation requestId={call.id} />}
           </Panel>
 

@@ -1,4 +1,4 @@
-export { API_BASE_URL, ApiError, errorMessage } from "./client";
+export { API_BASE_URL, ApiError, errorMessage, fileUrl } from "./client";
 export {
   authApi,
   companyApi,

@@ -7,6 +7,7 @@ import {
   consultationApi,
   errorMessage,
   fileApi,
+  fileUrl,
   requestApi,
   useApi,
   type AiSummary,
@@ -247,7 +248,7 @@ function ReportFields({ consultationId, draft }: FieldsProps) {
                 {file.contentType.startsWith("image/") ? (
                   // Uploaded files live on the API's storage, outside next/image's configured hosts.
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={file.url} alt="첨부 사진" className="size-full object-cover" />
+                  <img src={fileUrl(file.url)} alt="첨부 사진" className="size-full object-cover" />
                 ) : (
                   <span className="flex size-full items-center justify-center text-label-md text-secondary-700">
                     영상

@@ -96,6 +96,11 @@ export async function api<T>(path: string, { method = "GET", body, query, auth }
   return data?.data as T;
 }
 
+// File URLs may come back relative to the API ("/files/…"); point those at the API host.
+export function fileUrl(url: string) {
+  return /^https?:\/\//.test(url) || !baseURL ? url : new URL(url, baseURL).toString();
+}
+
 export function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : "알 수 없는 오류가 났어요.";
 }

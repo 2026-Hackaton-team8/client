@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentList } from "@/entities/attachment";
 import {
   callReasonLabels,
   equipmentStateLabels,
@@ -74,6 +75,7 @@ function RequestDetail({ request }: { request: RequestDetailResponse }) {
             <p className="rounded-lg border-2 border-primary-300 bg-white px-4 py-3 text-body-md whitespace-pre-line text-black">
               {request.symptomDetail}
             </p>
+            {!!request.attachments?.length && <AttachmentList attachments={request.attachments} />}
           </Panel>
         </div>
         <aside className="flex shrink-0 flex-col gap-6 lg:w-90">
