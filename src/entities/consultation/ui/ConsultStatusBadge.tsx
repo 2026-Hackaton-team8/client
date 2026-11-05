@@ -1,20 +1,20 @@
+import type { ConsultationStatus } from "@/shared/api";
 import { Badge, type BadgeTone } from "@/shared/ui";
-import type { ConsultStatus } from "../model/types";
 
 type Props = {
-  status: ConsultStatus;
+  status: ConsultationStatus;
 };
 
-export const consultStatusLabels: Record<ConsultStatus, string> = {
-  calling: "담당자 호출",
-  progress: "진행 중",
-  resolved: "해결됨",
+export const consultStatusLabels: Record<ConsultationStatus, string> = {
+  IN_PROGRESS: "진행 중",
+  ESCALATED: "담당자 호출",
+  RESOLVED: "해결됨",
 };
 
-const tones: Record<ConsultStatus, BadgeTone> = {
-  calling: "strong",
-  progress: "primary",
-  resolved: "neutral",
+const tones: Record<ConsultationStatus, BadgeTone> = {
+  IN_PROGRESS: "primary",
+  ESCALATED: "strong",
+  RESOLVED: "neutral",
 };
 
 export function ConsultStatusBadge({ status }: Props) {

@@ -1,30 +1,58 @@
-import { ConsultStatusBadge, type Consultation } from "@/entities/consultation";
-import type { Equipment } from "@/entities/equipment";
+"use client";
+
+import { useState } from "react";
+import { ConsultStatusBadge } from "@/entities/consultation";
 import { ConsultChat } from "@/features/consult-chat";
-import { PageHeading, PageMain } from "@/shared/ui";
+import { consultationApi, modelApi, useApi, type ConsultationDetailResponse } from "@/shared/api";
+import { unityCodeFor } from "@/shared/config";
+import { formatDateTime } from "@/shared/lib";
+import { LoadState, PageHeading, PageMain } from "@/shared/ui";
 import { AppHeader } from "@/widgets/app-header";
-import { ConsultViewer } from "./ConsultViewer";
+import { ModelViewer } from "@/widgets/model-viewer";
 
 type Props = {
-  consultation: Consultation;
-  equipment: Equipment;
+  consultationId: number;
 };
 
-export function ConsultDetailPage({ consultation, equipment }: Props) {
+export function ConsultDetailPage({ consultationId }: Props) {
+  const consultation = useApi(
+    () => consultationApi.get(consultationId),
+    `consultation:${consultationId}`,
+  );
+  // Each answer returns the whole consultation, so it replaces what was loaded.
+  const [answered, setLatest] = useState<ConsultationDetailResponse>();
+  const latest = answered ?? consultation.data;
+  const modelId = latest?.equipment.modelId;
+  const model = useApi(
+    () => (modelId ? modelApi.get(modelId) : Promise.resolve(undefined)),
+    `model:${modelId}`,
+  );
+
   return (
     <>
-      <AppHeader side="user" active="consult" />
+      <AppHeader side="user" active="equipment" />
       <PageMain>
-        <PageHeading
-          back={{ href: "/", label: "내 설비" }}
-          title={consultation.symptom}
-          titleAddon={<ConsultStatusBadge status={consultation.status} />}
-          description={`${consultation.dateLabel} 상담 · 질문 ${consultation.questions}회 · 요청번호 ${consultation.id}`}
-        />
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch">
-          <ConsultViewer fallback={equipment} suspect={consultation.suspect} />
-          <ConsultChat consultation={consultation} />
-        </div>
+        {!latest ? (
+          <LoadState error={consultation.error} />
+        ) : (
+          <>
+            <PageHeading
+              back={{ href: "/", label: "내 설비" }}
+              title={latest.symptom}
+              titleAddon={<ConsultStatusBadge status={latest.status} />}
+              description={`${formatDateTime(latest.createdAt)} 상담 · 질문 ${latest.questionCount}회${latest.aiCause ? ` · 좁힌 원인: ${latest.aiCause}` : ""}`}
+            />
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch">
+              <ModelViewer
+                name={latest.equipment.name}
+                details={`${latest.equipment.modelCode} · ${latest.equipment.location}`}
+                equipmentCode={unityCodeFor(model.data)}
+                suspect={latest.suspectedPart}
+              />
+              <ConsultChat consultation={latest} onChange={setLatest} />
+            </div>
+          </>
+        )}
       </PageMain>
     </>
   );

@@ -56,6 +56,7 @@ function CallDetail({ call, onChange }: CallDetailProps) {
   const model = useApi(() => modelApi.get(modelId), `model:${modelId}`);
   const histories = useApi(() => makerApi.modelHistories(modelId), `histories:${modelId}`);
   const [error, setError] = useState("");
+  const [showConversation, setShowConversation] = useState(false);
   const visitDue = isVisitDue(call);
   const summary = [
     ["증상", call.aiSummary?.symptom],
@@ -108,7 +109,23 @@ function CallDetail({ call, onChange }: CallDetailProps) {
       />
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-6">
-          <Panel tone="accent" title="AI 상담 요약" className="gap-4">
+          <Panel
+            tone="accent"
+            title="AI 상담 요약"
+            titleAddon={
+              call.consultationId && (
+                <button
+                  type="button"
+                  aria-expanded={showConversation}
+                  onClick={() => setShowConversation((value) => !value)}
+                  className="cursor-pointer text-label-lg text-primary-500 hover:text-primary-600"
+                >
+                  {showConversation ? "대화 접기" : "대화 전체 보기"}
+                </button>
+              )
+            }
+            className="gap-4"
+          >
             <dl className="flex flex-col gap-2.5 text-body-md">
               {summary.map(([label, value], index) => (
                 <div key={label} className="flex">
@@ -126,6 +143,31 @@ function CallDetail({ call, onChange }: CallDetailProps) {
             <p className="rounded-lg border-2 border-primary-300 bg-white px-4 py-3 text-body-md whitespace-pre-line text-black">
               {call.symptomDetail}
             </p>
+            {!!call.attachments?.length && (
+              <ul aria-label="첨부" className="flex flex-wrap gap-3">
+                {call.attachments.map((file) => (
+                  <li key={file.fileKey}>
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block size-24 overflow-hidden rounded-lg bg-secondary-100"
+                    >
+                      {file.contentType.startsWith("image/") ? (
+                        // Uploaded files live on the API's storage, outside next/image's configured hosts.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={file.url} alt="첨부 사진" className="size-full object-cover" />
+                      ) : (
+                        <span className="flex size-full items-center justify-center text-label-md text-secondary-700">
+                          영상
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {showConversation && <Conversation requestId={call.id} />}
           </Panel>
 
           <Panel
@@ -249,5 +291,46 @@ function VisitPanel({ callId, engineer, visitAt, visited }: VisitPanelProps) {
         </p>
       )}
     </Panel>
+  );
+}
+
+type ConversationProps = {
+  requestId: number;
+};
+
+// The AI consultation the user had before calling, as they saw it.
+function Conversation({ requestId }: ConversationProps) {
+  const { data: messages, error } = useApi(
+    () => makerApi.conversation(requestId),
+    `conversation:${requestId}`,
+  );
+
+  if (!messages) return <LoadState error={error} className="py-4" />;
+  return (
+    <ol aria-label="상담 대화" className="flex flex-col gap-2 rounded-lg bg-white p-4">
+      {messages.map((message) => {
+        const fromUser = message.sender === "USER";
+        return (
+          <li
+            key={message.id}
+            className={`flex max-w-4/5 flex-col gap-1 rounded-xl px-3.5 py-2.5 text-body-md ${
+              fromUser
+                ? "self-end bg-primary-500 text-white"
+                : "self-start bg-secondary-50 text-black"
+            }`}
+          >
+            <span className="sr-only">{fromUser ? "이용 기업: " : "AI: "}</span>
+            <span className="whitespace-pre-line">{message.content}</span>
+            {!!message.payload?.steps?.length && (
+              <ol className="list-inside list-decimal text-body-sm">
+                {message.payload.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }

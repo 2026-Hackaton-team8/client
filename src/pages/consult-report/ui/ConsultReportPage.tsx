@@ -1,14 +1,18 @@
-import type { Consultation } from "@/entities/consultation";
 import { ReportForm } from "@/features/request-engineer";
 import { PageHeading, PageMain, Panel } from "@/shared/ui";
 import { AppHeader } from "@/widgets/app-header";
 
 type Props = {
-  consultation: Consultation;
+  consultationId: number;
 };
 
 // Only what the report actually sends to the maker.
-const attachments = ["AI 상담 요약", "증상 · 설비 상태 · 긴급도", "담당자 · 회사 연락처"];
+const attachments = [
+  "AI 상담 대화와 요약",
+  "증상 · 설비 상태 · 긴급도",
+  "첨부한 사진 · 영상",
+  "담당자 · 회사 연락처",
+];
 
 const steps = [
   ["접수", "제작 업체 호출 수신함에 바로 올라가요."],
@@ -17,18 +21,18 @@ const steps = [
   ["수리 완료", "수리 내용이 설비 이력에 남아요."],
 ];
 
-export function ConsultReportPage({ consultation }: Props) {
+export function ConsultReportPage({ consultationId }: Props) {
   return (
     <>
-      <AppHeader side="user" active="consult" />
+      <AppHeader side="user" active="equipment" />
       <PageMain>
         <PageHeading
-          back={{ href: `/consult/${consultation.id}`, label: "AI 상담" }}
+          back={{ href: `/consult/${consultationId}`, label: "AI 상담" }}
           title="담당자 호출 신고서"
           description="AI 상담 내용은 자동으로 채워져요. 확인하고 필요한 내용을 직접 적어 주세요."
         />
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <ReportForm />
+          <ReportForm consultationId={consultationId} />
           <aside className="flex shrink-0 flex-col gap-6 lg:w-90">
             <Panel title="제출 후 진행" className="gap-4">
               <ol className="flex flex-col gap-3.5">

@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type {
   AssignRequest,
+  ConsultationDetailResponse,
   CompanyResponse,
   CompanyType,
   CreateCompanyRequest,
@@ -18,11 +19,14 @@ import type {
   MakerModelResponse,
   Manual,
   MeResponse,
+  MessageResponse,
   ModelDetailResponse,
   ModelSummaryResponse,
   PartResponse,
   RepairHistoryResponse,
   RequestDetailResponse,
+  RequestDraftResponse,
+  FileUploadResponse,
   RequestStatus,
   RequestSummaryResponse,
   SelectRoleRequest,
@@ -97,6 +101,9 @@ export const makerApi = {
       `/api/maker/requests/${requestId}/repair-history`,
       json("POST", body),
     ),
+  // The AI consultation that led to this call.
+  conversation: (requestId: number) =>
+    api<MessageResponse[]>(`/api/maker/requests/${requestId}/conversation`),
   engineers: () => api<EngineerResponse[]>("/api/maker/engineers"),
 
   models: () => api<MakerModelResponse[]>("/api/maker/models"),
@@ -109,4 +116,30 @@ export const makerApi = {
     api<Manual>(`/api/maker/models/${modelId}/manual`, json("PUT", body)),
   modelHistories: (modelId: number) =>
     api<RepairHistoryResponse[]>(`/api/maker/models/${modelId}/repair-histories`),
+};
+
+// AI consultation (사용 업체).
+export const consultationApi = {
+  start: (equipmentId: number, symptom: string) =>
+    api<ConsultationDetailResponse>("/api/consultations", json("POST", { equipmentId, symptom })),
+  get: (consultationId: number) =>
+    api<ConsultationDetailResponse>(`/api/consultations/${consultationId}`),
+  answer: (consultationId: number, content: string) =>
+    api<ConsultationDetailResponse>(
+      `/api/consultations/${consultationId}/messages`,
+      json("POST", { content }),
+    ),
+  resolve: (consultationId: number) =>
+    api<ConsultationDetailResponse>(`/api/consultations/${consultationId}/resolve`, json("POST")),
+  // Values to prefill the service request with.
+  requestDraft: (consultationId: number) =>
+    api<RequestDraftResponse>(`/api/consultations/${consultationId}/request-draft`),
+};
+
+export const fileApi = {
+  upload: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return api<FileUploadResponse>("/api/files", { method: "POST", body: form });
+  },
 };

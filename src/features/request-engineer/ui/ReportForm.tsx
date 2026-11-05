@@ -1,16 +1,19 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { callReasonLabels } from "@/entities/service-call";
 import { useMe } from "@/entities/user";
 import {
-  equipmentApi,
+  consultationApi,
   errorMessage,
+  fileApi,
   requestApi,
   useApi,
   type AiSummary,
+  type Attachment,
   type EquipmentState,
   type RequestDetailResponse,
+  type RequestDraftResponse,
   type Urgency,
 } from "@/shared/api";
 import {
@@ -20,11 +23,13 @@ import {
   LoadState,
   OptionGroup,
   Panel,
-  Placeholder,
-  Select,
   TextArea,
   TextField,
 } from "@/shared/ui";
+
+type Props = {
+  consultationId: number;
+};
 
 const machineStates: { value: EquipmentState; label: string }[] = [
   { value: "STOPPED", label: "완전히 멈춤" },
@@ -44,39 +49,67 @@ const summaryFields: { key: keyof AiSummary; label: string; maxLength: number }[
   { key: "triedAction", label: "시도한 조치", maxLength: 1000 },
 ];
 
-export function ReportForm() {
+// The API takes up to five attachments per request.
+const MAX_FILES = 5;
+
+export function ReportForm({ consultationId }: Props) {
+  const draft = useApi(
+    () => consultationApi.requestDraft(consultationId),
+    `request-draft:${consultationId}`,
+  );
+
+  if (!draft.data) return <LoadState error={draft.error} className="flex-1" />;
+  return <ReportFields consultationId={consultationId} draft={draft.data} />;
+}
+
+type FieldsProps = {
+  consultationId: number;
+  draft: RequestDraftResponse;
+};
+
+function ReportFields({ consultationId, draft }: FieldsProps) {
   const { data: me } = useMe();
-  const equipments = useApi(equipmentApi.list, "equipments");
-  const [equipmentId, setEquipmentId] = useState(useSearchParams()?.get("equipment") ?? "");
   const [machineState, setMachineState] = useState<EquipmentState>("STOPPED");
   const [urgency, setUrgency] = useState<Urgency>("HIGH");
-  // AI consultation isn't wired to the API yet, so the reporter fills the summary in.
-  const [summary, setSummary] = useState<AiSummary>({});
-  const [files, setFiles] = useState<string[]>([]);
+  const [summary, setSummary] = useState<AiSummary>(draft.aiSummary ?? {});
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [files, setFiles] = useState<Attachment[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [sent, setSent] = useState<RequestDetailResponse>();
+  const contact = draft.contact;
 
-  // An id from the URL that isn't one of my equipments falls back to the first one.
-  const equipment =
-    equipments.data?.find((item) => String(item.id) === equipmentId) ?? equipments.data?.[0];
-  const selectedId = equipment ? String(equipment.id) : "";
-  const filledSummary = Object.fromEntries(
-    Object.entries(summary).filter(([, value]) => value?.trim()),
-  ) as AiSummary;
+  async function upload(selected: File[]) {
+    const room = MAX_FILES - files.length;
+    if (room <= 0) return;
+    setUploading(true);
+    setError("");
+    try {
+      const uploaded = await Promise.all(selected.slice(0, room).map(fileApi.upload));
+      setFiles((current) => [...current, ...uploaded]);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!equipment) return;
     const data = new FormData(event.currentTarget);
     const field = (name: string) => String(data.get(name) ?? "").trim();
+    const filled = Object.fromEntries(
+      Object.entries(summary).filter(([, value]) => value?.trim()),
+    ) as AiSummary;
     setPending(true);
     setError("");
     try {
       setSent(
         await requestApi.create({
-          equipmentId: equipment.id,
-          aiSummary: Object.keys(filledSummary).length ? filledSummary : undefined,
+          consultationId,
+          equipmentId: draft.equipmentId,
+          aiSummary: Object.keys(filled).length ? filled : undefined,
           symptomDetail: field("symptomDetail"),
           equipmentState: machineState,
           urgency,
@@ -85,6 +118,7 @@ export function ReportForm() {
             reporterPhone: field("reporterPhone"),
             companyPhone: field("companyPhone"),
           },
+          attachmentKeys: files.length ? files.map((file) => file.fileKey) : undefined,
         }),
       );
     } catch (caught) {
@@ -113,54 +147,60 @@ export function ReportForm() {
     <form onSubmit={handleSubmit} className="min-w-0 flex-1">
       <Panel tone="outline" className="gap-6">
         <div className="flex flex-col gap-2">
-          {equipments.loading || equipments.error ? (
-            <LoadState error={equipments.error} className="py-3" />
-          ) : equipments.data?.length === 0 ? (
-            <p className="text-body-md text-secondary-600">
-              먼저 설비를 등록해 주세요.{" "}
-              <ButtonLink href="/equipment/new" variant="ghost" size="sm">
-                설비 등록
-              </ButtonLink>
+          <h2 className="text-label-lg text-black">설비</h2>
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border-2 border-secondary-100 px-4 py-3 text-body-md">
+            <span className="font-semibold text-black">{draft.equipmentName}</span>
+            <span className="text-secondary-600">
+              {draft.modelCode} · {draft.modelName}
+            </span>
+            {draft.callReason && <Badge tone="primary">{callReasonLabels[draft.callReason]}</Badge>}
+          </p>
+          {draft.suspectedPart && (
+            <p className="px-4 text-body-sm text-secondary-600">
+              의심 부품: {draft.suspectedPart.name} · {draft.suspectedPart.code}
             </p>
-          ) : (
-            <>
-              <Select
-                label="설비"
-                options={(equipments.data ?? []).map((item) => ({
-                  value: String(item.id),
-                  label: item.name,
-                }))}
-                value={selectedId}
-                onChange={(event) => setEquipmentId(event.target.value)}
-              />
-              {equipment && (
-                <p className="px-4 text-body-sm text-secondary-600">
-                  {equipment.model.code} · {equipment.location}
-                  {equipment.serialNumber && ` · ${equipment.serialNumber}`}
-                </p>
-              )}
-            </>
           )}
         </div>
 
         <div className="flex flex-col gap-2">
           <h2 className="text-label-lg text-black">AI 상담 요약</h2>
-          <div className="flex flex-col gap-3 rounded-lg border-2 border-primary-100 bg-primary-50 px-4 py-3">
-            <p className="text-label-md font-normal text-secondary-600">
-              상담에서 확인한 내용을 적어 주세요. 비워 두어도 돼요.
-            </p>
-            {summaryFields.map(({ key, label, maxLength }) => (
-              <TextArea
-                key={key}
-                label={label}
-                rows={2}
-                maxLength={maxLength}
-                value={summary[key] ?? ""}
-                onChange={(event) =>
-                  setSummary((current) => ({ ...current, [key]: event.target.value }))
-                }
-              />
-            ))}
+          <div className="flex flex-col gap-2 rounded-lg border-2 border-primary-100 bg-primary-50 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Badge tone="primary">자동 입력</Badge>
+              <span className="flex-1 text-label-md font-normal text-secondary-600">
+                상담 대화에서 가져왔어요
+              </span>
+              <button
+                type="button"
+                onClick={() => setEditingSummary((value) => !value)}
+                className="cursor-pointer text-body-sm font-semibold text-primary-500 hover:text-primary-600"
+              >
+                {editingSummary ? "완료" : "수정"}
+              </button>
+            </div>
+            {editingSummary ? (
+              summaryFields.map(({ key, label, maxLength }) => (
+                <TextArea
+                  key={key}
+                  label={label}
+                  rows={2}
+                  maxLength={maxLength}
+                  value={summary[key] ?? ""}
+                  onChange={(event) =>
+                    setSummary((current) => ({ ...current, [key]: event.target.value }))
+                  }
+                />
+              ))
+            ) : (
+              <dl className="flex flex-col gap-1 text-body-md">
+                {summaryFields.map(({ key, label }) => (
+                  <div key={key} className="flex">
+                    <dt className="w-22 shrink-0 text-secondary-600">{label}</dt>
+                    <dd className="text-black">{summary[key] || "—"}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </div>
         </div>
 
@@ -192,51 +232,82 @@ export function ReportForm() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="text-label-lg text-black">사진·영상 첨부</h2>
+          <h2 className="text-label-lg text-black">
+            사진·영상 첨부{" "}
+            <span className="text-label-md font-normal text-secondary-600">
+              {files.length} / {MAX_FILES}
+            </span>
+          </h2>
           <div className="flex flex-wrap gap-3">
             {files.map((file) => (
-              <Placeholder key={file} label={file} className="size-24" />
+              <div
+                key={file.fileKey}
+                className="relative size-24 overflow-hidden rounded-lg bg-secondary-100"
+              >
+                {file.contentType.startsWith("image/") ? (
+                  // Uploaded files live on the API's storage, outside next/image's configured hosts.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={file.url} alt="첨부 사진" className="size-full object-cover" />
+                ) : (
+                  <span className="flex size-full items-center justify-center text-label-md text-secondary-700">
+                    영상
+                  </span>
+                )}
+                <button
+                  type="button"
+                  aria-label="첨부 삭제"
+                  onClick={() =>
+                    setFiles((current) => current.filter((item) => item.fileKey !== file.fileKey))
+                  }
+                  className="absolute top-1 right-1 cursor-pointer rounded-md bg-white px-1.5 text-label-md text-black"
+                >
+                  ×
+                </button>
+              </div>
             ))}
-            <label className="flex size-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-secondary-300 text-secondary-600 hover:border-secondary-500 has-focus-visible:outline-2 has-focus-visible:outline-primary-500">
-              <span className="text-heading-sm font-normal">+</span>
-              <span className="text-label-md font-normal">추가</span>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="sr-only"
-                onChange={(event) => {
-                  const added = Array.from(event.target.files ?? [], (file) => file.name);
-                  setFiles((current) => [...current, ...added]);
-                }}
-              />
-            </label>
+            {files.length < MAX_FILES && (
+              <label className="flex size-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-secondary-300 text-secondary-600 hover:border-secondary-500 has-focus-visible:outline-2 has-focus-visible:outline-primary-500">
+                <span className="text-heading-sm font-normal">+</span>
+                <span className="text-label-md font-normal">
+                  {uploading ? "올리는 중…" : "추가"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  disabled={uploading}
+                  className="sr-only"
+                  onChange={(event) => {
+                    upload(Array.from(event.target.files ?? []));
+                    event.target.value = "";
+                  }}
+                />
+              </label>
+            )}
           </div>
-          <p className="text-label-md font-normal text-secondary-600">
-            첨부 업로드는 아직 지원하지 않아 신고서에는 포함되지 않아요.
-          </p>
         </div>
 
-        {/* Keyed on the user so the defaults fill in once /api/me arrives. */}
+        {/* Keyed so the defaults fill in once /api/me arrives. */}
         <div key={me?.userId ?? "loading"} className="grid gap-4 sm:grid-cols-3">
           <TextField
             label="담당자 이름"
             name="reporterName"
             maxLength={50}
-            defaultValue={me?.name}
+            defaultValue={contact?.reporterName || me?.name}
             required
           />
           <TextField
             label="담당자 연락처"
             name="reporterPhone"
             type="tel"
-            defaultValue={me?.phone}
+            defaultValue={contact?.reporterPhone || me?.phone}
             required
           />
           <TextField
             label="회사 연락처"
             name="companyPhone"
             type="tel"
+            defaultValue={contact?.companyPhone}
             placeholder="02-000-0000"
             required
           />
@@ -248,7 +319,7 @@ export function ReportForm() {
               {error}
             </p>
           )}
-          <Button type="submit" disabled={!equipment || pending}>
+          <Button type="submit" disabled={pending || uploading}>
             {pending ? "보내는 중…" : "신고서 제출하고 호출"}
           </Button>
         </div>

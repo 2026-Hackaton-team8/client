@@ -7,6 +7,9 @@ export type Urgency = "HIGH" | "MEDIUM" | "LOW";
 export type EquipmentState = "STOPPED" | "PARTIAL" | "NORMAL";
 export type CallReason = "SOLUTION_FAILED" | "NEEDS_EXPERT" | "LOW_CONFIDENCE" | "NO_HISTORY";
 export type Difficulty = "SELF" | "ENGINEER";
+export type ConsultationStatus = "IN_PROGRESS" | "ESCALATED" | "RESOLVED";
+export type MessageSender = "USER" | "AI";
+export type MessageType = "SYMPTOM" | "QUESTION" | "ANSWER" | "SOLUTION" | "ESCALATE";
 export type SectionType = "OVERVIEW" | "OPERATION" | "MAINTENANCE" | "TROUBLESHOOTING" | "SAFETY";
 
 // Auth
@@ -184,12 +187,15 @@ export type Contact = { reporterName: string; reporterPhone: string; companyPhon
 export type EngineerInfo = { id: number; name: string; phone: string };
 
 export type CreateRequestRequest = {
+  consultationId?: number;
   equipmentId: number;
   aiSummary?: AiSummary;
   symptomDetail: string;
   equipmentState: EquipmentState;
   urgency: Urgency;
   contact: Contact;
+  // fileKeys from POST /api/files, up to 5.
+  attachmentKeys?: string[];
 };
 
 export type RequestSummaryResponse = {
@@ -206,9 +212,12 @@ export type RequestSummaryResponse = {
   createdAt: string;
 };
 
+export type Attachment = { fileKey: string; contentType: string; size: number; url: string };
+
 export type RequestDetailResponse = {
   id: number;
   requestNo: string;
+  consultationId?: number;
   status: RequestStatus;
   urgency: Urgency;
   equipmentState: EquipmentState;
@@ -221,6 +230,7 @@ export type RequestDetailResponse = {
   engineer?: EngineerInfo;
   visitAt?: string;
   createdAt: string;
+  attachments?: Attachment[];
 };
 
 export type InboxResponse = {
@@ -258,3 +268,57 @@ export type CreateRepairHistoryRequest = {
   solution: string;
   difficulty: Difficulty;
 };
+
+// AI consultation (사용 업체)
+
+export type Candidate = { cause: string; partCode?: string; confidence?: number };
+
+export type MessagePayload = {
+  // Quick replies the AI offers for a question.
+  options?: string[];
+  candidates?: Candidate[];
+  steps?: string[];
+  cautions?: string[];
+  reason?: CallReason;
+};
+
+export type MessageResponse = {
+  id: number;
+  sender: MessageSender;
+  type: MessageType;
+  content: string;
+  payload?: MessagePayload;
+  createdAt: string;
+};
+
+export type ConsultationDetailResponse = {
+  id: number;
+  status: ConsultationStatus;
+  symptom: string;
+  questionCount: number;
+  maxQuestions: number;
+  aiCause?: string;
+  suspectedPart?: PartResponse;
+  equipment: EquipmentInfo;
+  // Set once the consultation ended in a service request.
+  requestId?: number;
+  canAnswer: boolean;
+  canResolve: boolean;
+  messages: MessageResponse[];
+  createdAt: string;
+  resolvedAt?: string;
+};
+
+export type RequestDraftResponse = {
+  consultationId: number;
+  equipmentId: number;
+  equipmentName: string;
+  modelCode: string;
+  modelName: string;
+  aiSummary?: AiSummary;
+  callReason?: CallReason;
+  suspectedPart?: PartResponse;
+  contact?: Contact;
+};
+
+export type FileUploadResponse = Attachment;

@@ -1,16 +1,9 @@
 "use client";
 
-import { consultations } from "@/entities/consultation";
 import { EquipmentCard } from "@/entities/equipment";
 import { equipmentApi, useApi } from "@/shared/api";
 import { ButtonLink, LoadState, PageHeading } from "@/shared/ui";
 import { RecentRequests } from "./RecentRequests";
-
-// AI consultation has no API yet, so 고장 상담 opens a sample consultation and carries the
-// real equipment id along for the report it may end in.
-function consultHref(equipmentId: number) {
-  return `/consult/${consultations[0].id}?equipment=${equipmentId}`;
-}
 
 export function EquipmentBoard() {
   const { data: equipments, error, loading } = useApi(equipmentApi.list, "equipments");
@@ -38,7 +31,7 @@ export function EquipmentBoard() {
                   actions={
                     <div className="flex gap-2">
                       <ButtonLink
-                        href={consultHref(equipment.id)}
+                        href={`/consult/new?equipment=${equipment.id}`}
                         size="sm"
                         block
                         className="flex-1"
