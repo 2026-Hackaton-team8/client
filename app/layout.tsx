@@ -22,7 +22,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className={`${pretendard.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="ko"
+      className={`${pretendard.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+    >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
