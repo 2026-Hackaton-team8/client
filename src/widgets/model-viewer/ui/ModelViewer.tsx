@@ -18,7 +18,8 @@ export function ModelViewer({ equipment, suspect }: Props) {
       </div>
       <UnityViewer
         label={`${equipment.name} 3D 모델`}
-        modelIndex={equipment.unityIndex}
+        equipmentCode={equipment.unityCode}
+        partCode={suspect.unityPart}
         className="h-140"
       >
         <div className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded-lg border-2 border-primary-300 bg-white px-4 py-3">

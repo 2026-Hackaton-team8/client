@@ -34,7 +34,12 @@ export const consultations: Consultation[] = [
       { id: "m4", from: "user", text: "네, 소리는 나요" },
     ],
     solution: drainSolution,
-    suspect: { code: "P-07", name: "배수 필터", location: "전면 하단 왼쪽 커버 안쪽" },
+    suspect: {
+      code: "P-07",
+      name: "배수 필터",
+      location: "전면 하단 왼쪽 커버 안쪽",
+      unityPart: "ROBOT-001:GRIPPER",
+    },
   },
   {
     id: "AS-1043",
@@ -62,7 +67,12 @@ export const consultations: Consultation[] = [
       steps: ["설비 다리 네 곳의 수평을 다시 맞춰요.", "빈 상태로 탈수를 돌려 소음을 확인해요."],
       source: "근거: 매뉴얼 p.41 진동 · 같은 모델 수리 이력 2건",
     },
-    suspect: { code: "P-14", name: "드럼 베어링", location: "후면 하단 중앙" },
+    suspect: {
+      code: "P-14",
+      name: "드럼 베어링",
+      location: "후면 하단 중앙",
+      unityPart: "PUMP-001:SHAFT",
+    },
   },
   {
     id: "AS-1038",
@@ -85,7 +95,12 @@ export const consultations: Consultation[] = [
       steps: ["설비 뒤쪽 수도 밸브가 열려 있는지 확인해요.", "급수 호스가 꺾이지 않았는지 봐요."],
       source: "근거: 매뉴얼 p.28 급수",
     },
-    suspect: { code: "P-02", name: "급수 밸브", location: "후면 상단 오른쪽" },
+    suspect: {
+      code: "P-02",
+      name: "급수 밸브",
+      location: "후면 상단 오른쪽",
+      unityPart: "COMPRESSOR-001:SAFETY_VALVE",
+    },
   },
   {
     id: "AS-1036",
@@ -108,7 +123,12 @@ export const consultations: Consultation[] = [
       steps: ["도어를 열고 고무 패킹에 이물질이 없는지 봐요.", "도어를 힘주어 닫고 다시 시작해요."],
       source: "근거: 매뉴얼 p.19 도어",
     },
-    suspect: { code: "P-03", name: "도어 잠금장치", location: "도어 오른쪽 안쪽" },
+    suspect: {
+      code: "P-03",
+      name: "도어 잠금장치",
+      location: "도어 오른쪽 안쪽",
+      unityPart: "ROBOT-001:WRIST",
+    },
   },
   {
     id: "AS-1033",
@@ -131,7 +151,12 @@ export const consultations: Consultation[] = [
       steps: ["투입구 서랍을 빼서 따뜻한 물로 씻어요.", "안쪽 노즐 구멍을 솔로 닦아요."],
       source: "근거: 매뉴얼 p.35 세제",
     },
-    suspect: { code: "P-05", name: "세제 투입구", location: "전면 상단 왼쪽" },
+    suspect: {
+      code: "P-05",
+      name: "세제 투입구",
+      location: "전면 상단 왼쪽",
+      unityPart: "CNC-001:COOLING_UNIT",
+    },
   },
   {
     id: "AS-1029",
@@ -154,7 +179,12 @@ export const consultations: Consultation[] = [
       steps: ["도어 안쪽 배기 필터를 빼요.", "먼지를 털고 물로 씻은 뒤 말려서 끼워요."],
       source: "근거: 매뉴얼 p.22 건조",
     },
-    suspect: { code: "P-08", name: "배기 필터", location: "도어 안쪽 아래" },
+    suspect: {
+      code: "P-08",
+      name: "배기 필터",
+      location: "도어 안쪽 아래",
+      unityPart: "CNC-001:SPINDLE",
+    },
   },
 ];
 

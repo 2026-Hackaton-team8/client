@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
-import { unityBuild, unityModelSelector } from "@/shared/config";
+import { unityBridge, unityBuild } from "@/shared/config";
 
 type Props = {
   label: string;
-  modelIndex?: number;
+  equipmentCode?: string;
+  partCode?: string;
   className?: string;
   // Overlays drawn on top of the canvas; they stay visible in fullscreen.
   children?: ReactNode;
 };
 
-export function UnityViewer({ label, modelIndex, className, children }: Props) {
+export function UnityViewer({ label, equipmentCode, partCode, className, children }: Props) {
   const { unityProvider, isLoaded, loadingProgression, initialisationError, sendMessage } =
     useUnityContext(unityBuild);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -20,9 +21,14 @@ export function UnityViewer({ label, modelIndex, className, children }: Props) {
   const percent = Math.round(loadingProgression * 100);
 
   useEffect(() => {
-    if (!isLoaded || modelIndex === undefined) return;
-    sendMessage(unityModelSelector.objectName, unityModelSelector.method, String(modelIndex));
-  }, [isLoaded, modelIndex, sendMessage]);
+    if (!isLoaded || !equipmentCode) return;
+    sendMessage(unityBridge.objectName, unityBridge.setEquipment, equipmentCode);
+  }, [isLoaded, equipmentCode, sendMessage]);
+
+  useEffect(() => {
+    if (!isLoaded || !equipmentCode || !partCode) return;
+    sendMessage(unityBridge.objectName, unityBridge.selectPart, partCode);
+  }, [isLoaded, equipmentCode, partCode, sendMessage]);
 
   useEffect(() => {
     const sync = () => setIsFullscreen(document.fullscreenElement === containerRef.current);

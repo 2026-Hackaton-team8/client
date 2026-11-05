@@ -109,7 +109,8 @@ export function MakerCallDetailPage({ call }: Props) {
             <Panel title="의심 부품 위치" className="gap-3">
               <UnityViewer
                 label={`${call.model} 3D 모델`}
-                modelIndex={findEquipment(call.equipmentId)?.unityIndex}
+                equipmentCode={findEquipment(call.equipmentId)?.unityCode}
+                partCode={call.unityPart}
                 className="h-80"
               />
               <ul className="flex flex-col gap-2">

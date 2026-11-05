@@ -1,9 +1,9 @@
 const cacheName = "DefaultCompany-SWHack-0.1.0";
 const contentToCache = [
-    "Build/12312312313.loader.js",
-    "Build/12312312313.framework.js",
-    "Build/12312312313.data",
-    "Build/12312312313.wasm",
+    "Build/2345690.loader.js",
+    "Build/2345690.framework.js",
+    "Build/2345690.data",
+    "Build/2345690.wasm",
     "TemplateData/style.css"
 
 ];

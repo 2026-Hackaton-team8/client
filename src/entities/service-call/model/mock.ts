@@ -8,6 +8,7 @@ const drainParts: ServiceCall["suspectParts"] = [
 export const serviceCalls: ServiceCall[] = [
   {
     id: "AS-1044",
+    unityPart: "ROBOT-001:GRIPPER",
     consultId: "AS-1044",
     equipmentId: "eq-1",
     urgency: "high",
@@ -31,6 +32,7 @@ export const serviceCalls: ServiceCall[] = [
   },
   {
     id: "AS-1043",
+    unityPart: "PUMP-001:SHAFT",
     consultId: "AS-1043",
     equipmentId: "eq-3",
     urgency: "mid",
@@ -53,6 +55,7 @@ export const serviceCalls: ServiceCall[] = [
   },
   {
     id: "AS-1042",
+    unityPart: "COMPRESSOR-001:PRESSURE_GAUGE",
     equipmentId: "eq-4",
     urgency: "mid",
     status: "new",
@@ -74,6 +77,7 @@ export const serviceCalls: ServiceCall[] = [
   },
   {
     id: "AS-1040",
+    unityPart: "ROBOT-001:WRIST",
     equipmentId: "eq-5",
     urgency: "low",
     status: "new",
@@ -95,6 +99,7 @@ export const serviceCalls: ServiceCall[] = [
   },
   {
     id: "AS-1035",
+    unityPart: "CNC-001:SPINDLE",
     equipmentId: "eq-2",
     urgency: "mid",
     status: "assigned",
@@ -116,6 +121,7 @@ export const serviceCalls: ServiceCall[] = [
   },
   {
     id: "AS-1029",
+    unityPart: "CNC-001:COOLING_UNIT",
     equipmentId: "eq-6",
     urgency: "low",
     status: "done",
@@ -137,6 +143,7 @@ export const serviceCalls: ServiceCall[] = [
   },
   {
     id: "AS-1038",
+    unityPart: "COMPRESSOR-001:SAFETY_VALVE",
     consultId: "AS-1038",
     equipmentId: "eq-4",
     urgency: "low",
