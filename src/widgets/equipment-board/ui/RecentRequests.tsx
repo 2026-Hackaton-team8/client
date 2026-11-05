@@ -22,7 +22,7 @@ export function RecentRequests() {
               <li key={request.id}>
                 <Link
                   href={`/requests/${request.id}`}
-                  className={`flex flex-col gap-1.5 rounded p-2.5 hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-primary-500 ${request.status === "RECEIVED" ? "bg-primary-50" : ""}`}
+                  className="flex flex-col gap-1.5 rounded p-2.5 transition-colors hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-primary-500"
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="text-label-lg text-black">{request.equipmentName}</span>
